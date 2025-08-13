@@ -1,35 +1,45 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React from "react";
+import { LoginForm } from "./components/LoginForm";
+import { UserDashboard } from "./components/UserDashboard";
+import { AdminPanel } from "./components/AdminPanel";
+import { AdminUserView } from "./components/AdminUserView";
+import { UserDetailsModal } from "./components/UserDetailsModal";
+import { LogoutButton } from "./components/LogoutButton";
+import { useAuth } from "./hooks/useAuth";
+import "./styles/global.css";
 
-function App() {
-  const [count, setCount] = useState(0)
+const App: React.FC = () => {
+  const { currentUser, isAdmin, adminViewingUser } = useAuth();
+
+  const renderCurrentView = () => {
+    if (!currentUser) {
+      return <LoginForm />;
+    }
+
+    if (isAdmin) {
+      if (adminViewingUser) {
+        return <AdminUserView />;
+      }
+      return <AdminPanel />;
+    }
+
+    return <UserDashboard />;
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className="app">
+      <div className="container">
+        <header className="header">
+          <h1>🏦 Banco Digital</h1>
+          <p>Sistema Bancario Seguro y Confiable</p>
+        </header>
 
-export default App
+        {currentUser && <LogoutButton />}
+        {renderCurrentView()}
+        <UserDetailsModal />
+      </div>
+    </div>
+  );
+};
+
+export default App;

@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FONDO DE AHORRO PROGRESAR</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .login-section {
+            padding: 40px;
+            text-align: center;
+        }
+
+        .login-form {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #27ae60, #229954);
+        }
+
+        .dashboard {
+            display: none;
+            padding: 40px;
+        }
+
+        .user-info {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .balance {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .operations {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .operation-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .operation-card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .admin-panel {
+            display: none;
+            padding: 40px;
+        }
+
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .user-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .user-card h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .user-card p {
+            margin: 5px 0;
+        }
+
+        .user-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .user-actions button {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        .transaction-history {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .transaction-item {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .transaction-item.withdrawal {
+            border-left-color: #e74c3c;
+        }
+
+        .transaction-item.deposit {
+            border-left-color: #27ae60;
+        }
+
+        .transaction-item.loan {
+            border-left-color: #9b59b6;
+        }
+
+        .loan-item {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 4px solid #9b59b6;
+        }
+
+        .loan-status {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .loan-status.active {
+            background: #f39c12;
+            color: white;
+        }
+
+        .loan-status.paid {
+            background: #27ae60;
+            color: white;
+        }
+
+        .logout-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .account-link {
+            color: #3498db;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .account-link:hover {
+            color: #2980b9;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 0;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .close:hover {
+            opacity: 0.7;
+        }
+
+        .detail-section {
+            margin-bottom: 30px;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .detail-section h4 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .detail-item {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+
+        .detail-item strong {
+            display: block;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏦 Banco Digital</h1>
+            <p>Sistema Bancario Seguro y Confiable</p>
+        </div>
+
+        <!-- Modal de Detalles de Usuario -->
+        <div id="userDetailsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalUserName">Detalles del Usuario</h2>
+                    <button class="close" onclick="closeUserDetails()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="detail-section">
+                        <h4>📋 Información General</h4>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <strong>Nombre Completo</strong>
+                                <span id="detailName"></span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Número de Cuenta</strong>
+                                <span id="detailAccount"></span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Balance Actual</strong>
+                                <span id="detailBalance"></span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Estado de Cuenta</strong>
+                                <span id="detailStatus"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>💳 Préstamos</h4>
+                        <div id="detailLoans"></div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>📊 Historial de Transacciones</h4>
+                        <div id="detailTransactions"></div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>🔧 Acciones de Administrador</h4>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn" onclick="adjustBalanceFromModal('add')">💰 Agregar Dinero</button>
+                            <button class="btn btn-danger" onclick="adjustBalanceFromModal('subtract')">💸 Restar Dinero</button>
+                            <button class="btn btn-success" onclick="resetPasswordFromModal()">🔑 Reset Contraseña</button>
+                            <button class="btn btn-danger" onclick="deleteUserFromModal()">🗑️ Eliminar Usuario</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de Login -->
+        <div id="loginSection" class="login-section">
+            <div class="login-form">
+                <h2>Iniciar Sesión</h2>
+                <div class="form-group">
+                    <label for="userSelect">Seleccionar Usuario:</label>
+                    <select id="userSelect">
+                        <option value="">-- Seleccionar --</option>
+                        <option value="admin">Administrador</option>
+                        <option value="user1">ALIRIO MANRIQUE - 10001</option>
+                        <option value="user2">ELOINA MANRIQUE - 10002</option>
+                        <option value="user3">PEDRO CONTRERAS - 10003</option>
+                        <option value="user4">PEDRO CONTRERAS - 10004</option>
+                        <option value="user5">AUGUSTO CONTRERAS - 10005</option>
+                        <option value="user6">AUGUSTO CONTRERAS - 10006</option>
+                        <option value="user7">SANDRA MORENO - 10007</option>
+                        <option value="user8">SANDRA MORENO - 10008</option>
+                        <option value="user9">BRAYAN IDARRAGA - 10009</option>
+                        <option value="user10">BRAYAN MORENO - 10010</option>
+                        <option value="user11">DIEGO TORRES - 10011</option>
+                        <option value="user12">CAROLINA REATIGA - 10012</option>
+                        <option value="user13">MARIA VARGAS - 10013</option>
+                        <option value="user14">STELLA AMAYA - 10014</option>
+                        <option value="user15">DAVID LOPEZ - 10015</option>
+                        <option value="user16">JESSICA PLATA - 10016</option>
+                        <option value="user17">JESSICA PLATA - 10017</option>
+                        <option value="user18">CESAR MANRIQUE - 10018</option>
+                        <option value="user19">CESAR MANRIQUE - 10019</option>
+                        <option value="user20">DIEGO CONTRERAS - 10020</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="password">Contraseña:</label>
+                    <input type="password" id="password" placeholder="Ingrese su contraseña">
+                </div>
+                <button class="btn" onclick="login()">Iniciar Sesión</button>
+                <div id="loginAlert"></div>
+                <div style="margin-top: 20px; font-size: 14px; color: #666;">
+                    <p><strong>Credenciales de prueba:</strong></p>
+                    <p>Admin: admin / admin123</p>
+                    <p>Usuarios: password123</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard de Usuario -->
+        <div id="userDashboard" class="dashboard">
+            <button class="btn btn-danger logout-btn" onclick="logout()">Cerrar Sesión</button>
+            
+            <div class="user-info">
+                <h2 id="welcomeMessage"></h2>
+                <div class="balance" id="userBalance"></div>
+                <p>Número de Cuenta: <span id="accountNumber"></span></p>
+            </div>
+
+            <div class="operations">
+                <div class="operation-card">
+                    <h3>💰 Depositar</h3>
+                    <div class="form-group">
+                        <label>Monto:</label>
+                        <input type="number" id="depositAmount" placeholder="0.00" min="1">
+                    </div>
+                    <button class="btn btn-success" onclick="deposit()">Depositar</button>
+                </div>
+
+                <div class="operation-card">
+                    <h3>💸 Retirar</h3>
+                    <div class="form-group">
+                        <label>Monto:</label>
+                        <input type="number" id="withdrawAmount" placeholder="0.00" min="1">
+                    </div>
+                    <button class="btn btn-danger" onclick="withdraw()">Retirar</button>
+                </div>
+
+                <div class="operation-card">
+                    <h3>💳 Solicitar Préstamo</h3>
+                    <div class="form-group">
+                        <label>Monto:</label>
+                        <input type="number" id="loanAmount" placeholder="0.00" min="1" max="1000">
+                    </div>
+                    <div class="form-group">
+                        <label>Cuotas (máximo 6 meses):</label>
+                        <select id="loanTerms">
+                            <option value="1">1 mes - 1.5% interés</option>
+                            <option value="2">2 meses - 3.0% interés</option>
+                            <option value="3">3 meses - 4.5% interés</option>
+                            <option value="4">4 meses - 6.0% interés</option>
+                            <option value="5">5 meses - 7.5% interés</option>
+                            <option value="6">6 meses - 9.0% interés</option>
+                        </select>
+                    </div>
+                    <div id="loanSummary" style="background: #e8f4f8; padding: 10px; border-radius: 5px; margin: 10px 0; display: none;">
+                        <p><strong>Resumen del Préstamo:</strong></p>
+                        <p>Monto solicitado: $<span id="summaryAmount">0</span></p>
+                        <p>Interés total: $<span id="summaryInterest">0</span></p>
+                        <p>Total a pagar: $<span id="summaryTotal">0</span></p>
+                        <p>Cuota mensual: $<span id="summaryMonthly">0</span></p>
+                    </div>
+                    <button class="btn" onclick="requestLoan()">Solicitar Préstamo</button>
+                </div>
+            </div>
+
+            <div class="transaction-history">
+                <h3>📊 Historial de Transacciones</h3>
+                <div id="transactionList"></div>
+            </div>
+
+            <div class="transaction-history" style="margin-top: 20px;">
+                <h3>💳 Mis Préstamos</h3>
+                <div id="loansList"></div>
+            </div>
+        </div>
+
+        <!-- Panel de Administrador -->
+        <div id="adminPanel" class="admin-panel">
+            <button class="btn btn-danger logout-btn" onclick="logout()">Cerrar Sesión</button>
+            
+            <h2>🔧 Panel de Administrador</h2>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="totalUsers">10</h3>
+                    <p>Usuarios Totales</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="totalBalance">$0</h3>
+                    <p>Balance Total</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="totalLoans">0</h3>
+                    <p>Préstamos Activos</p>
+                </div>
+            </div>
+
+            <div class="operation-card" style="margin-bottom: 20px;">
+                <h3>➕ Crear Nuevo Usuario</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; align-items: end;">
+                    <div class="form-group">
+                        <label>Nombre:</label>
+                        <input type="text" id="newUserName" placeholder="Nombre completo">
+                    </div>
+                    <div class="form-group">
+                        <label>Balance Inicial:</label>
+                        <input type="number" id="newUserBalance" placeholder="0.00" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Contraseña:</label>
+                        <input type="password" id="newUserPassword" placeholder="Contraseña">
+                    </div>
+                    <button class="btn btn-success" onclick="createUser()">Crear</button>
+                </div>
+            </div>
+
+            <h3>👥 Gestión de Usuarios</h3>
+            <div class="users-grid" id="usersGrid"></div>
+        </div>
+
+        <!-- Vista de Cuenta desde Admin -->
+        <div id="adminUserView" class="dashboard">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <button class="btn" onclick="backToAdmin()">← Volver al Panel Admin</button>
+                <button class="btn btn-danger logout-btn" onclick="logout()">Cerrar Sesión</button>
+            </div>
+            
+            <div class="user-info">
+                <h2 id="adminViewWelcome"></h2>
+                <div class="balance" id="adminViewBalance"></div>
+                <p>Número de Cuenta: <span id="adminViewAccount"></span></p>
+                <p style="color: rgba(255,255,255,0.8); font-size: 14px;">Vista de administrador - Solo lectura</p>
+            </div>
+
+            <div class="operations">
+                <div class="operation-card">
+                    <h3>💰 Depositar</h3>
+                    <div class="form-group">
+                        <label>Monto:</label>
+                        <input type="number" id="adminDepositAmount" placeholder="0.00" min="1">
+                    </div>
+                    <button class="btn btn-success" onclick="adminDeposit()">Depositar</button>
+                </div>
+
+                <div class="operation-card">
+                    <h3>💸 Retirar</h3>
+                    <div class="form-group">
+                        <label>Monto:</label>
+                        <input type="number" id="adminWithdrawAmount" placeholder="0.00" min="1">
+                    </div>
+                    <button class="btn btn-danger" onclick="adminWithdraw()">Retirar</button>
+                </div>
+
+                <div class="operation-card">
+                    <h3>💳 Crear Préstamo</h3>
+                    <div class="form-group">
+                        <label>Monto:</label>
+                        <input type="number" id="adminLoanAmount" placeholder="0.00" min="1" max="1000">
+                    </div>
+                    <div class="form-group">
+                        <label>Cuotas (máximo 6 meses):</label>
+                        <select id="adminLoanTerms">
+                            <option value="1">1 mes - 1.5% interés</option>
+                            <option value="2">2 meses - 3.0% interés</option>
+                            <option value="3">3 meses - 4.5% interés</option>
+                            <option value="4">4 meses - 6.0% interés</option>
+                            <option value="5">5 meses - 7.5% interés</option>
+                            <option value="6">6 meses - 9.0% interés</option>
+                        </select>
+                    </div>
+                    <div id="adminLoanSummary" style="background: #e8f4f8; padding: 10px; border-radius: 5px; margin: 10px 0; display: none;">
+                        <p><strong>Resumen del Préstamo:</strong></p>
+                        <p>Monto solicitado: $<span id="adminSummaryAmount">0</span></p>
+                        <p>Interés total: $<span id="adminSummaryInterest">0</span></p>
+                        <p>Total a pagar: $<span id="adminSummaryTotal">0</span></p>
+                        <p>Cuota mensual: $<span id="adminSummaryMonthly">0</span></p>
+                    </div>
+                    <button class="btn" onclick="adminCreateLoan()">Crear Préstamo</button>
+                </div>
+            </div>
+
+            <div class="transaction-history">
+                <h3>📊 Historial de Transacciones</h3>
+                <div id="adminTransactionList"></div>
+            </div>
+
+            <div class="transaction-history" style="margin-top: 20px;">
+                <h3>💳 Préstamos del Usuario</h3>
+                <div id="adminLoansList"></div>
+            </div>
+        </div>
+        <div id="userDetailsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalUserName">Detalles del Usuario</h2>
+                    <button class="close" onclick="closeUserDetails()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="detail-section">
+                        <h4>📋 Información General</h4>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <strong>Nombre Completo</strong>
+                                <span id="detailName"></span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Número de Cuenta</strong>
+                                <span id="detailAccount"></span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Balance Actual</strong>
+                                <span id="detailBalance"></span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>Estado de Cuenta</strong>
+                                <span id="detailStatus"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>💳 Préstamos</h4>
+                        <div id="detailLoans"></div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>📊 Historial de Transacciones</h4>
+                        <div id="detailTransactions"></div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>🔧 Acciones de Administrador</h4>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn" onclick="adjustBalanceFromModal('add')">💰 Agregar Dinero</button>
+                            <button class="btn btn-danger" onclick="adjustBalanceFromModal('subtract')">💸 Restar Dinero</button>
+                            <button class="btn btn-success" onclick="resetPasswordFromModal()">🔑 Reset Contraseña</button>
+                            <button class="btn btn-danger" onclick="deleteUserFromModal()">🗑️ Eliminar Usuario</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <script>
+        // Base de datos en memoria
+        let users = {
+            user1: { name: 'ALIRIO MANRIQUE', balance: 540, accountNumber: '10001', password: 'password123', transactions: [], loans: [] },
+            user2: { name: 'ELOINA MANRIQUE', balance: 540, accountNumber: '10002', password: 'password123', transactions: [], loans: [] },
+            user3: { name: 'PEDRO CONTRERAS', balance: 540, accountNumber: '10003', password: 'password123', transactions: [], loans: [] },
+            user4: { name: 'PEDRO CONTRERAS', balance: 540, accountNumber: '10004', password: 'password123', transactions: [], loans: [] },
+            user5: { name: 'AUGUSTO CONTRERAS', balance: 540, accountNumber: '10005', password: 'password123', transactions: [], loans: [] },
+            user6: { name: 'AUGUSTO CONTRERAS', balance: 540, accountNumber: '10006', password: 'password123', transactions: [], loans: [] },
+            user7: { name: 'SANDRA MORENO', balance: 540, accountNumber: '10007', password: 'password123', transactions: [], loans: [] },
+            user8: { name: 'SANDRA MORENO', balance: 540, accountNumber: '10008', password: 'password123', transactions: [], loans: [] },
+            user9: { name: 'BRAYAN IDARRAGA', balance: 540, accountNumber: '10009', password: 'password123', transactions: [], loans: [] },
+            user10: { name: 'BRAYAN MORENO', balance: 540, accountNumber: '10010', password: 'password123', transactions: [], loans: [] },
+            user11: { name: 'DIEGO TORRES', balance: 540, accountNumber: '10011', password: 'password123', transactions: [], loans: [] },
+            user12: { name: 'CAROLINA REATIGA', balance: 540, accountNumber: '10012', password: 'password123', transactions: [], loans: [] },
+            user13: { name: 'MARIA VARGAS', balance: 540, accountNumber: '10013', password: 'password123', transactions: [], loans: [] },
+            user14: { name: 'STELLA AMAYA', balance: 540, accountNumber: '10014', password: 'password123', transactions: [], loans: [] },
+            user15: { name: 'DAVID LOPEZ', balance: 540, accountNumber: '10015', password: 'password123', transactions: [], loans: [] },
+            user16: { name: 'JESSICA PLATA', balance: 540, accountNumber: '10016', password: 'password123', transactions: [], loans: [] },
+            user17: { name: 'JESSICA PLATA', balance: 540, accountNumber: '10017', password: 'password123', transactions: [], loans: [] },
+            user18: { name: 'CESAR MANRIQUE', balance: 540, accountNumber: '10018', password: 'password123', transactions: [], loans: [] },
+            user19: { name: 'CESAR MANRIQUE', balance: 540, accountNumber: '10019', password: 'password123', transactions: [], loans: [] },
+            user20: { name: 'DIEGO CONTRERAS', balance: 540, accountNumber: '10020', password: 'password123', transactions: [], loans: [] }
+        };
+
+        let currentUser = null;
+        let isAdmin = false;
+        let userCounter = 20;
+        let adminViewingUser = null;
+
+        // Función de login
+        function login() {
+            const selectedUser = document.getElementById('userSelect').value;
+            const password = document.getElementById('password').value;
+            const alertDiv = document.getElementById('loginAlert');
+
+            if (!selectedUser || !password) {
+                showAlert(alertDiv, 'Por favor seleccione un usuario e ingrese la contraseña', 'danger');
+                return;
+            }
+
+            if (selectedUser === 'admin' && password === 'admin123') {
+                isAdmin = true;
+                currentUser = 'admin';
+                showAdminPanel();
+            } else if (users[selectedUser] && users[selectedUser].password === password) {
+                isAdmin = false;
+                currentUser = selectedUser;
+                showUserDashboard();
+            } else {
+                showAlert(alertDiv, 'Credenciales incorrectas', 'danger');
+            }
+        }
+
+        // Mostrar dashboard de usuario
+        function showUserDashboard() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('userDashboard').style.display = 'block';
+
+            const user = users[currentUser];
+            document.getElementById('welcomeMessage').textContent = `Bienvenido, ${user.name}`;
+            document.getElementById('userBalance').textContent = `${user.balance.toFixed(2)}`;
+            document.getElementById('accountNumber').textContent = user.accountNumber;
+
+            updateTransactionHistory();
+            updateLoansDisplay();
+        }
+
+        // Ver cuenta de usuario desde admin
+        function viewUserAccount(userId) {
+            adminViewingUser = userId;
+            const user = users[userId];
+
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('adminUserView').style.display = 'block';
+
+            document.getElementById('adminViewWelcome').textContent = `Vista de ${user.name}`;
+            document.getElementById('adminViewBalance').textContent = `${user.balance.toFixed(2)}`;
+            document.getElementById('adminViewAccount').textContent = user.accountNumber;
+
+            updateAdminUserView();
+        }
+
+        // Volver al panel de admin
+        function backToAdmin() {
+            adminViewingUser = null;
+            document.getElementById('adminUserView').style.display = 'none';
+            showAdminPanel();
+        }
+
+        // Actualizar vista de usuario desde admin
+        function updateAdminUserView() {
+            if (!adminViewingUser) return;
+            
+            const user = users[adminViewingUser];
+            document.getElementById('adminViewBalance').textContent = `${user.balance.toFixed(2)}`;
+            
+            updateAdminTransactionHistory();
+            updateAdminLoansDisplay();
+        }
+
+        // Funciones de admin para operar sobre el usuario
+        function adminDeposit() {
+            const amount = parseFloat(document.getElementById('adminDepositAmount').value);
+            if (!amount || amount <= 0) {
+                alert('Por favor ingrese un monto válido');
+                return;
+            }
+
+            users[adminViewingUser].balance += amount;
+            addTransaction(adminViewingUser, 'deposit', amount, `Depósito por administrador: +${amount.toFixed(2)}`);
+            
+            document.getElementById('adminDepositAmount').value = '';
+            updateAdminUserView();
+            alert('Depósito realizado exitosamente');
+        }
+
+        function adminWithdraw() {
+            const amount = parseFloat(document.getElementById('adminWithdrawAmount').value);
+            if (!amount || amount <= 0) {
+                alert('Por favor ingrese un monto válido');
+                return;
+            }
+
+            if (users[adminViewingUser].balance < amount) {
+                alert('Saldo insuficiente');
+                return;
+            }
+
+            users[adminViewingUser].balance -= amount;
+            addTransaction(adminViewingUser, 'withdrawal', amount, `Retiro por administrador: -${amount.toFixed(2)}`);
+            
+            document.getElementById('adminWithdrawAmount').value = '';
+            updateAdminUserView();
+            alert('Retiro realizado exitosamente');
+        }
+
+        function adminCreateLoan() {
+            const amount = parseFloat(document.getElementById('adminLoanAmount').value);
+            const terms = parseInt(document.getElementById('adminLoanTerms').value);
+
+            if (!amount || amount <= 0) {
+                alert('Por favor ingrese un monto válido');
+                return;
+            }
+
+            if (amount > 1000) {
+                alert('El monto máximo para préstamos es $1000');
+                return;
+            }
+
+            const activeLoans = users[adminViewingUser].loans.filter(loan => loan.status === 'active');
+            if (activeLoans.length >= 2) {
+                alert('El usuario no puede tener más de 2 préstamos activos');
+                return;
+            }
+
+            const interestRate = terms * 1.5;
+            const totalInterest = (amount * interestRate) / 100;
+            const totalAmount = amount + totalInterest;
+            const monthlyPayment = totalAmount / terms;
+
+            const loan = {
+                id: Date.now(),
+                amount: amount,
+                interestRate: interestRate,
+                totalInterest: totalInterest,
+                totalAmount: totalAmount,
+                monthlyPayment: monthlyPayment,
+                terms: terms,
+                remainingPayments: terms,
+                status: 'active',
+                dateCreated: new Date().toLocaleDateString(),
+                nextPaymentDate: getNextPaymentDate()
+            };
+
+            users[adminViewingUser].loans.push(loan);
+            users[adminViewingUser].balance += amount;
+
+            addTransaction(adminViewingUser, 'loan', amount, `Préstamo creado por administrador: +${amount.toFixed(2)} (${terms} cuotas)`);
+
+            document.getElementById('adminLoanAmount').value = '';
+            document.getElementById('adminLoanSummary').style.display = 'none';
+            updateAdminUserView();
+            alert('Préstamo creado exitosamente');
+        }
+
+        function updateAdminTransactionHistory() {
+            const list = document.getElementById('adminTransactionList');
+            const transactions = users[adminViewingUser].transactions;
+
+            if (transactions.length === 0) {
+                list.innerHTML = '<p>No hay transacciones registradas</p>';
+                return;
+            }
+
+            list.innerHTML = transactions.map(transaction => `
+                <div class="transaction-item ${transaction.type}">
+                    <strong>${transaction.description}</strong>
+                    <br>
+                    <small>${transaction.date}</small>
+                </div>
+            `).join('');
+        }
+
+        function updateAdminLoansDisplay() {
+            const list = document.getElementById('adminLoansList');
+            const loans = users[adminViewingUser].loans;
+
+            if (loans.length === 0) {
+                list.innerHTML = '<p>No tiene préstamos registrados</p>';
+                return;
+            }
+
+            list.innerHTML = loans.map(loan => `
+                <div class="loan-item">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <strong>Préstamo #${loan.id.toString().slice(-4)}</strong>
+                        <span class="loan-status ${loan.status}">${loan.status === 'active' ? 'Activo' : 'Pagado'}</span>
+                    </div>
+                    <p><strong>Monto original:</strong> ${loan.amount.toFixed(2)}</p>
+                    <p><strong>Interés:</strong> ${loan.interestRate}% (${loan.totalInterest.toFixed(2)})</p>
+                    <p><strong>Total a pagar:</strong> ${loan.totalAmount.toFixed(2)}</p>
+                    <p><strong>Cuota mensual:</strong> ${loan.monthlyPayment.toFixed(2)}</p>
+                    <p><strong>Cuotas restantes:</strong> ${loan.remainingPayments}/${loan.terms}</p>
+                    ${loan.status === 'active' ? `
+                        <p><strong>Próximo pago:</strong> ${loan.nextPaymentDate}</p>
+                        <button class="btn btn-success" onclick="adminPayLoanInstallment(${loan.id})" style="margin-top: 10px;">
+                            Pagar Cuota (${loan.monthlyPayment.toFixed(2)})
+                        </button>
+                    ` : '<p style="color: #27ae60;"><strong>✓ Préstamo completamente pagado</strong></p>'}
+                </div>
+            `).join('');
+        }
+
+        function adminPayLoanInstallment(loanId) {
+            const loan = users[adminViewingUser].loans.find(l => l.id === loanId);
+            if (!loan || loan.status !== 'active') return;
+
+            if (users[adminViewingUser].balance < loan.monthlyPayment) {
+                alert('Saldo insuficiente para pagar la cuota');
+                return;
+            }
+
+            users[adminViewingUser].balance -= loan.monthlyPayment;
+            loan.remainingPayments--;
+
+            if (loan.remainingPayments <= 0) {
+                loan.status = 'paid';
+                addTransaction(adminViewingUser, 'loan', loan.monthlyPayment, `Pago final de préstamo por admin: -${loan.monthlyPayment.toFixed(2)}`);
+            } else {
+                loan.nextPaymentDate = getNextPaymentDate();
+                addTransaction(adminViewingUser, 'loan', loan.monthlyPayment, `Pago de cuota por admin: -${loan.monthlyPayment.toFixed(2)} (${loan.remainingPayments} restantes)`);
+            }
+
+            updateAdminUserView();
+            alert('Cuota pagada exitosamente');
+        }
+
+        // Mostrar resumen del préstamo admin
+        function updateAdminLoanSummary() {
+            const amount = parseFloat(document.getElementById('adminLoanAmount').value) || 0;
+            const terms = parseInt(document.getElementById('adminLoanTerms').value);
+
+            if (amount > 0) {
+                const interestRate = terms * 1.5;
+                const totalInterest = (amount * interestRate) / 100;
+                const totalAmount = amount + totalInterest;
+                const monthlyPayment = totalAmount / terms;
+
+                document.getElementById('adminSummaryAmount').textContent = amount.toFixed(2);
+                document.getElementById('adminSummaryInterest').textContent = totalInterest.toFixed(2);
+                document.getElementById('adminSummaryTotal').textContent = totalAmount.toFixed(2);
+                document.getElementById('adminSummaryMonthly').textContent = monthlyPayment.toFixed(2);
+                document.getElementById('adminLoanSummary').style.display = 'block';
+            } else {
+                document.getElementById('adminLoanSummary').style.display = 'none';
+            }
+        }
+
+        // Mostrar detalles del usuario en modal
+        function showUserDetails(userId) {
+            selectedUserForDetails = userId;
+            const user = users[userId];
+            
+            // Información general
+            document.getElementById('modalUserName').textContent = `Detalles de ${user.name}`;
+            document.getElementById('detailName').textContent = user.name;
+            document.getElementById('detailAccount').textContent = user.accountNumber;
+            document.getElementById('detailBalance').textContent = `${user.balance.toFixed(2)}`;
+            document.getElementById('detailStatus').textContent = user.balance >= 0 ? 'Activa' : 'Sobregiro';
+            document.getElementById('detailStatus').style.color = user.balance >= 0 ? '#27ae60' : '#e74c3c';
+
+            // Préstamos
+            const loansContainer = document.getElementById('detailLoans');
+            if (user.loans.length === 0) {
+                loansContainer.innerHTML = '<p>No tiene préstamos registrados</p>';
+            } else {
+                loansContainer.innerHTML = user.loans.map(loan => `
+                    <div class="detail-item" style="margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <strong>Préstamo #${loan.id.toString().slice(-4)}</strong>
+                            <span class="loan-status ${loan.status}" style="padding: 3px 8px; border-radius: 12px; font-size: 12px;">
+                                ${loan.status === 'active' ? 'Activo' : 'Pagado'}
+                            </span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; font-size: 14px;">
+                            <div><strong>Monto:</strong> ${loan.amount.toFixed(2)}</div>
+                            <div><strong>Interés:</strong> ${loan.interestRate}%</div>
+                            <div><strong>Total:</strong> ${loan.totalAmount.toFixed(2)}</div>
+                            <div><strong>Cuota:</strong> ${loan.monthlyPayment.toFixed(2)}</div>
+                            <div><strong>Restantes:</strong> ${loan.remainingPayments}/${loan.terms}</div>
+                            <div><strong>Creado:</strong> ${loan.dateCreated}</div>
+                        </div>
+                        ${loan.status === 'active' ? `<div style="margin-top: 10px; color: #f39c12;"><strong>Próximo pago:</strong> ${loan.nextPaymentDate}</div>` : ''}
+                    </div>
+                `).join('');
+            }
+
+            // Transacciones
+            const transactionsContainer = document.getElementById('detailTransactions');
+            if (user.transactions.length === 0) {
+                transactionsContainer.innerHTML = '<p>No hay transacciones registradas</p>';
+            } else {
+                transactionsContainer.innerHTML = user.transactions.slice(0, 10).map(transaction => `
+                    <div class="transaction-item ${transaction.type}" style="margin-bottom: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <strong>${transaction.description}</strong>
+                            <span style="font-size: 12px; color: #666;">${transaction.date}</span>
+                        </div>
+                    </div>
+                `).join('') + (user.transactions.length > 10 ? '<p style="text-align: center; color: #666; margin-top: 10px;">... y más transacciones</p>' : '');
+            }
+
+            document.getElementById('userDetailsModal').style.display = 'block';
+        }
+
+        // Cerrar modal de detalles
+        function closeUserDetails() {
+            document.getElementById('userDetailsModal').style.display = 'none';
+            selectedUserForDetails = null;
+        }
+
+        // Acciones desde el modal
+        function adjustBalanceFromModal(operation) {
+            if (!selectedUserForDetails) return;
+            adjustBalance(selectedUserForDetails, operation);
+            showUserDetails(selectedUserForDetails); // Actualizar el modal
+        }
+
+        function resetPasswordFromModal() {
+            if (!selectedUserForDetails) return;
+            resetPassword(selectedUserForDetails);
+        }
+
+        function deleteUserFromModal() {
+            if (!selectedUserForDetails) return;
+            deleteUser(selectedUserForDetails);
+            closeUserDetails();
+        }
+
+        // Cerrar modal al hacer click fuera
+        window.onclick = function(event) {
+            const modal = document.getElementById('userDetailsModal');
+            if (event.target == modal) {
+                closeUserDetails();
+            }
+        }
+
+        // Mostrar panel de administrador
+        function showAdminPanel() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('userDashboard').style.display = 'none';
+            document.getElementById('adminUserView').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+
+            updateAdminStats();
+            updateUsersGrid();
+        }
+
+        // Actualizar estadísticas del admin
+        function updateAdminStats() {
+            const totalUsers = Object.keys(users).length;
+            const totalBalance = Object.values(users).reduce((sum, user) => sum + user.balance, 0);
+            const totalLoans = Object.values(users).reduce((sum, user) => sum + user.loans.filter(loan => loan.status === 'active').length, 0);
+
+            document.getElementById('totalUsers').textContent = totalUsers;
+            document.getElementById('totalBalance').textContent = `${totalBalance.toFixed(2)}`;
+            document.getElementById('totalLoans').textContent = totalLoans;
+        }
+
+        // Actualizar grid de usuarios
+        function updateUsersGrid() {
+            const grid = document.getElementById('usersGrid');
+            grid.innerHTML = '';
+
+            Object.entries(users).forEach(([userId, user]) => {
+                const userCard = document.createElement('div');
+                userCard.className = 'user-card';
+                userCard.innerHTML = `
+                    <h4>${user.name}</h4>
+                    <p><strong>Cuenta:</strong> ${user.accountNumber}</p>
+                    <p><strong>Balance:</strong> ${user.balance.toFixed(2)}</p>
+                    <p><strong>Transacciones:</strong> ${user.transactions.length}</p>
+                    <p><strong>Préstamos:</strong> ${user.loans.filter(loan => loan.status === 'active').length} activos</p>
+                    <div class="user-actions">
+                        <button class="btn" onclick="viewUserAccount('${userId}')">👁️ Ver Cuenta</button>
+                         <!-- <button class="btn" onclick="adjustBalance('${userId}', 'add')">+ Agregar</button>
+                        <button class="btn btn-danger" onclick="adjustBalance('${userId}', 'subtract')">- Restar</button>
+                        <button class="btn btn-success" onclick="resetPassword('${userId}')">Reset Pass</button>
+                        <button class="btn btn-danger" onclick="deleteUser('${userId}')">Eliminar</button>-->
+                    </div>
+                `;
+                grid.appendChild(userCard);
+            });
+        }
+
+        // Crear nuevo usuario
+        function createUser() {
+            const name = document.getElementById('newUserName').value;
+            const balance = parseFloat(document.getElementById('newUserBalance').value) || 0;
+            const password = document.getElementById('newUserPassword').value;
+
+            if (!name || !password) {
+                alert('Por favor complete todos los campos');
+                return;
+            }
+
+            userCounter++;
+            const userId = `user${userCounter}`;
+            const accountNumber = (10000 + userCounter).toString();
+
+            users[userId] = {
+                name: name,
+                balance: balance,
+                accountNumber: accountNumber,
+                password: password,
+                transactions: [],
+                loans: []
+            };
+
+            // Agregar al select de login
+            const select = document.getElementById('userSelect');
+            const option = document.createElement('option');
+            option.value = userId;
+            option.textContent = `${name} - ${accountNumber}`;
+            select.appendChild(option);
+
+            // Limpiar campos
+            document.getElementById('newUserName').value = '';
+            document.getElementById('newUserBalance').value = '';
+            document.getElementById('newUserPassword').value = '';
+
+            updateAdminStats();
+            updateUsersGrid();
+            alert('Usuario creado exitosamente');
+        }
+
+        // Ajustar balance de usuario
+        function adjustBalance(userId, operation) {
+            const amount = parseFloat(prompt('Ingrese el monto:'));
+            if (!amount || amount <= 0) return;
+
+            if (operation === 'add') {
+                users[userId].balance += amount;
+                addTransaction(userId, 'deposit', amount, `Depósito por administrador: +$${amount.toFixed(2)}`);
+            } else {
+                if (users[userId].balance >= amount) {
+                    users[userId].balance -= amount;
+                    addTransaction(userId, 'withdrawal', amount, `Retiro por administrador: -$${amount.toFixed(2)}`);
+                } else {
+                    alert('Saldo insuficiente');
+                    return;
+                }
+            }
+
+            updateAdminStats();
+            updateUsersGrid();
+        }
+
+        // Reset password
+        function resetPassword(userId) {
+            const newPassword = prompt('Ingrese la nueva contraseña:');
+            if (newPassword) {
+                users[userId].password = newPassword;
+                alert('Contraseña actualizada exitosamente');
+            }
+        }
+
+        // Eliminar usuario
+        function deleteUser(userId) {
+            if (confirm(`¿Está seguro de eliminar al usuario ${users[userId].name}?`)) {
+                // Remover del select
+                const select = document.getElementById('userSelect');
+                for (let option of select.options) {
+                    if (option.value === userId) {
+                        option.remove();
+                        break;
+                    }
+                }
+
+                delete users[userId];
+                updateAdminStats();
+                updateUsersGrid();
+                alert('Usuario eliminado');
+            }
+        }
+
+        // Operaciones bancarias
+        function deposit() {
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            if (!amount || amount <= 0) {
+                alert('Por favor ingrese un monto válido');
+                return;
+            }
+
+            users[currentUser].balance += amount;
+            addTransaction(currentUser, 'deposit', amount, `Depósito: +$${amount.toFixed(2)}`);
+            
+            document.getElementById('depositAmount').value = '';
+            updateUserDisplay();
+            alert('Depósito realizado exitosamente');
+        }
+
+        function withdraw() {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            if (!amount || amount <= 0) {
+                alert('Por favor ingrese un monto válido');
+                return;
+            }
+
+            if (users[currentUser].balance < amount) {
+                alert('Saldo insuficiente');
+                return;
+            }
+
+            users[currentUser].balance -= amount;
+            addTransaction(currentUser, 'withdrawal', amount, `Retiro: -$${amount.toFixed(2)}`);
+            
+            document.getElementById('withdrawAmount').value = '';
+            updateUserDisplay();
+            alert('Retiro realizado exitosamente');
+        }
+
+        // Solicitar préstamo
+        function requestLoan() {
+            const amount = parseFloat(document.getElementById('loanAmount').value);
+            const terms = parseInt(document.getElementById('loanTerms').value);
+
+            if (!amount || amount <= 0) {
+                alert('Por favor ingrese un monto válido');
+                return;
+            }
+
+            if (amount > 1000) {
+                alert('El monto máximo para préstamos es $1000');
+                return;
+            }
+
+            // Verificar si el usuario ya tiene préstamos activos
+            const activeLoans = users[currentUser].loans.filter(loan => loan.status === 'active');
+            if (activeLoans.length >= 2) {
+                alert('No puede tener más de 2 préstamos activos');
+                return;
+            }
+
+            const interestRate = terms * 1.5; // 1.5% por mes
+            const totalInterest = (amount * interestRate) / 100;
+            const totalAmount = amount + totalInterest;
+            const monthlyPayment = totalAmount / terms;
+
+            const loan = {
+                id: Date.now(),
+                amount: amount,
+                interestRate: interestRate,
+                totalInterest: totalInterest,
+                totalAmount: totalAmount,
+                monthlyPayment: monthlyPayment,
+                terms: terms,
+                remainingPayments: terms,
+                status: 'active',
+                dateCreated: new Date().toLocaleDateString(),
+                nextPaymentDate: getNextPaymentDate()
+            };
+
+            users[currentUser].loans.push(loan);
+            users[currentUser].balance += amount;
+
+            addTransaction(currentUser, 'loan', amount, `Préstamo aprobado: +${amount.toFixed(2)} (${terms} cuotas)`);
+
+            document.getElementById('loanAmount').value = '';
+            document.getElementById('loanSummary').style.display = 'none';
+            updateUserDisplay();
+            updateLoansDisplay();
+            alert('Préstamo aprobado exitosamente');
+        }
+
+        // Calcular fecha del próximo pago
+        function getNextPaymentDate() {
+            const date = new Date();
+            date.setMonth(date.getMonth() + 1);
+            return date.toLocaleDateString();
+        }
+
+        // Pagar cuota de préstamo
+        function payLoanInstallment(loanId) {
+            const loan = users[currentUser].loans.find(l => l.id === loanId);
+            if (!loan || loan.status !== 'active') return;
+
+            if (users[currentUser].balance < loan.monthlyPayment) {
+                alert('Saldo insuficiente para pagar la cuota');
+                return;
+            }
+
+            users[currentUser].balance -= loan.monthlyPayment;
+            loan.remainingPayments--;
+
+            if (loan.remainingPayments <= 0) {
+                loan.status = 'paid';
+                addTransaction(currentUser, 'loan', loan.monthlyPayment, `Pago final de préstamo: -${loan.monthlyPayment.toFixed(2)}`);
+            } else {
+                loan.nextPaymentDate = getNextPaymentDate();
+                addTransaction(currentUser, 'loan', loan.monthlyPayment, `Pago de cuota: -${loan.monthlyPayment.toFixed(2)} (${loan.remainingPayments} cuotas restantes)`);
+            }
+
+            updateUserDisplay();
+            updateLoansDisplay();
+            alert('Cuota pagada exitosamente');
+        }
+
+        // Mostrar resumen del préstamo
+        function updateLoanSummary() {
+            const amount = parseFloat(document.getElementById('loanAmount').value) || 0;
+            const terms = parseInt(document.getElementById('loanTerms').value);
+
+            if (amount > 0) {
+                const interestRate = terms * 1.5;
+                const totalInterest = (amount * interestRate) / 100;
+                const totalAmount = amount + totalInterest;
+                const monthlyPayment = totalAmount / terms;
+
+                document.getElementById('summaryAmount').textContent = amount.toFixed(2);
+                document.getElementById('summaryInterest').textContent = totalInterest.toFixed(2);
+                document.getElementById('summaryTotal').textContent = totalAmount.toFixed(2);
+                document.getElementById('summaryMonthly').textContent = monthlyPayment.toFixed(2);
+                document.getElementById('loanSummary').style.display = 'block';
+            } else {
+                document.getElementById('loanSummary').style.display = 'none';
+            }
+        }
+
+        // Actualizar display de préstamos
+        function updateLoansDisplay() {
+            const list = document.getElementById('loansList');
+            const loans = users[currentUser].loans;
+
+            if (loans.length === 0) {
+                list.innerHTML = '<p>No tiene préstamos registrados</p>';
+                return;
+            }
+
+            list.innerHTML = loans.map(loan => `
+                <div class="loan-item">
+                    <div style="display: flex; justify-content: between; align-items: center; margin-bottom: 10px;">
+                        <strong>Préstamo #${loan.id.toString().slice(-4)}</strong>
+                        <span class="loan-status ${loan.status}">${loan.status === 'active' ? 'Activo' : 'Pagado'}</span>
+                    </div>
+                    <p><strong>Monto original:</strong> ${loan.amount.toFixed(2)}</p>
+                    <p><strong>Interés:</strong> ${loan.interestRate}% (${loan.totalInterest.toFixed(2)})</p>
+                    <p><strong>Total a pagar:</strong> ${loan.totalAmount.toFixed(2)}</p>
+                    <p><strong>Cuota mensual:</strong> ${loan.monthlyPayment.toFixed(2)}</p>
+                    <p><strong>Cuotas restantes:</strong> ${loan.remainingPayments}/${loan.terms}</p>
+                    ${loan.status === 'active' ? `
+                        <p><strong>Próximo pago:</strong> ${loan.nextPaymentDate}</p>
+                        <button class="btn btn-success" onclick="payLoanInstallment(${loan.id})" style="margin-top: 10px;">
+                            Pagar Cuota (${loan.monthlyPayment.toFixed(2)})
+                        </button>
+                    ` : '<p style="color: #27ae60;"><strong>✓ Préstamo completamente pagado</strong></p>'}
+                </div>
+            `).join('');
+        }
+
+        // Funciones auxiliares
+        function addTransaction(userId, type, amount, description) {
+            users[userId].transactions.unshift({
+                id: Date.now() + Math.random(),
+                type: type,
+                amount: amount,
+                description: description,
+                date: new Date().toLocaleString()
+            });
+        }
+
+        function updateUserDisplay() {
+            const user = users[currentUser];
+            document.getElementById('userBalance').textContent = `${user.balance.toFixed(2)}`;
+            updateTransactionHistory();
+            updateLoansDisplay();
+        }
+
+        function updateTransactionHistory() {
+            const list = document.getElementById('transactionList');
+            const transactions = users[currentUser].transactions;
+
+            if (transactions.length === 0) {
+                list.innerHTML = '<p>No hay transacciones registradas</p>';
+                return;
+            }
+
+            list.innerHTML = transactions.map(transaction => `
+                <div class="transaction-item ${transaction.type}">
+                    <strong>${transaction.description}</strong>
+                    <br>
+                    <small>${transaction.date}</small>
+                </div>
+            `).join('');
+        }
+
+        function updateTransferOptions() {
+            const select = document.getElementById('transferTo');
+            select.innerHTML = '<option value="">-- Seleccionar --</option>';
+
+            Object.entries(users).forEach(([userId, user]) => {
+                if (userId !== currentUser) {
+                    const option = document.createElement('option');
+                    option.value = userId;
+                    option.textContent = `${user.name} - ${user.accountNumber}`;
+                    select.appendChild(option);
+                }
+            });
+        }
+
+        function logout() {
+            currentUser = null;
+            isAdmin = false;
+            document.getElementById('userSelect').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('loginAlert').innerHTML = '';
+            
+            document.getElementById('userDashboard').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('adminUserView').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'block';
+        }
+
+        function showAlert(element, message, type) {
+            element.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+            setTimeout(() => element.innerHTML = '', 3000);
+        }
+
+        // Permitir login con Enter y actualizar resumen de préstamo
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+
+        // Event listeners para el cálculo del préstamo
+        document.getElementById('loanAmount').addEventListener('input', updateLoanSummary);
+        document.getElementById('loanTerms').addEventListener('change', updateLoanSummary);
+        
+        // Event listeners para el cálculo del préstamo admin
+        document.getElementById('adminLoanAmount').addEventListener('input', updateAdminLoanSummary);
+        document.getElementById('adminLoanTerms').addEventListener('change', updateAdminLoanSummary);
+    </script>
+</body>
+</html>
