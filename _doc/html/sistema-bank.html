@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MiBanco - Banca Móvil</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      .app-container {
+        max-width: 375px;
+        margin: 0 auto;
+        background: #f8f9fa;
+        min-height: 100vh;
+        position: relative;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .screen {
+        display: none;
+        padding: 20px;
+        min-height: 100vh;
+        animation: slideIn 0.3s ease-out;
+      }
+
+      .screen.active {
+        display: block;
+      }
+
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      /* Login Screen */
+      .login-screen {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .logo {
+        font-size: 2.5rem;
+        font-weight: bold;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .login-subtitle {
+        font-size: 1.1rem;
+        margin-bottom: 40px;
+        opacity: 0.9;
+      }
+
+      .login-form {
+        width: 100%;
+        max-width: 300px;
+      }
+
+      .input-group {
+        margin-bottom: 20px;
+        position: relative;
+      }
+
+      .input-group input {
+        width: 100%;
+        padding: 15px;
+        border: none;
+        border-radius: 25px;
+        font-size: 16px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        backdrop-filter: blur(10px);
+      }
+
+      .input-group input::placeholder {
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .btn-primary {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(45deg, #ff6b6b, #ffa500);
+        border: none;
+        border-radius: 25px;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      }
+
+      /* Header */
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        text-align: center;
+        position: relative;
+        border-radius: 0 0 20px 20px;
+        margin: -20px -20px 20px -20px;
+      }
+
+      .back-btn {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      /* Dashboard */
+      .welcome-section {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .user-greeting {
+        font-size: 1.2rem;
+        color: #333;
+        margin-bottom: 5px;
+      }
+
+      .account-balance {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #667eea;
+      }
+
+      .currency {
+        font-size: 0.9rem;
+        color: #666;
+      }
+
+      .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .action-btn {
+        background: white;
+        border: none;
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+      }
+
+      .action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      .action-icon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+        display: block;
+      }
+
+      .action-text {
+        color: #333;
+        font-weight: 500;
+      }
+
+      /* Recent Transactions */
+      .transactions-section {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .section-title {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 15px;
+      }
+
+      .transaction-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 0;
+        border-bottom: 1px solid #eee;
+      }
+
+      .transaction-item:last-child {
+        border-bottom: none;
+      }
+
+      .transaction-info {
+        flex: 1;
+      }
+
+      .transaction-title {
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 5px;
+      }
+
+      .transaction-date {
+        font-size: 0.8rem;
+        color: #666;
+      }
+
+      .transaction-amount {
+        font-weight: bold;
+      }
+
+      .amount-positive {
+        color: #22c55e;
+      }
+
+      .amount-negative {
+        color: #ef4444;
+      }
+
+      /* Transfer Form */
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: #333;
+      }
+
+      .form-input {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: #667eea;
+      }
+
+      .form-select {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 16px;
+        background: white;
+      }
+
+      /* Cards */
+      .card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 15px;
+        padding: 20px;
+        color: white;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .card-number {
+        font-size: 1.2rem;
+        font-weight: bold;
+        letter-spacing: 2px;
+        margin: 15px 0;
+      }
+
+      .card-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+      }
+
+      .card-holder {
+        font-size: 0.9rem;
+        opacity: 0.9;
+      }
+
+      .card-expiry {
+        font-size: 0.9rem;
+        opacity: 0.9;
+      }
+
+      /* Bottom Navigation */
+      .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: 375px;
+        background: white;
+        display: flex;
+        justify-content: space-around;
+        padding: 15px 0;
+        box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .nav-item {
+        text-align: center;
+        cursor: pointer;
+        padding: 5px;
+        transition: color 0.3s ease;
+      }
+
+      .nav-item.active {
+        color: #667eea;
+      }
+
+      .nav-icon {
+        font-size: 1.5rem;
+        margin-bottom: 5px;
+        display: block;
+      }
+
+      .nav-text {
+        font-size: 0.7rem;
+      }
+
+      /* Success Message */
+      .success-message {
+        background: #22c55e;
+        color: white;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        text-align: center;
+        display: none;
+      }
+
+      .success-message.show {
+        display: block;
+        animation: slideDown 0.3s ease-out;
+      }
+
+      @keyframes slideDown {
+        from {
+          transform: translateY(-100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      /* Loading */
+      .loading {
+        display: none;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .loading.show {
+        display: flex;
+      }
+
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 375px) {
+        .app-container {
+          max-width: 100%;
+        }
+
+        .bottom-nav {
+          max-width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-container">
+      <!-- Login Screen -->
+      <div class="screen login-screen active" id="loginScreen">
+        <div class="logo">🏦 MiBanco</div>
+        <div class="login-subtitle">Banca Digital Segura</div>
+        <div class="login-form">
+          <div class="input-group">
+            <input type="text" placeholder="Usuario o Email" id="username" />
+          </div>
+          <div class="input-group">
+            <input type="password" placeholder="Contraseña" id="password" />
+          </div>
+          <button class="btn-primary" onclick="login()">Iniciar Sesión</button>
+        </div>
+      </div>
+
+      <!-- Dashboard Screen -->
+      <div class="screen" id="dashboardScreen">
+        <div class="header">
+          <h2>Mi Cuenta</h2>
+        </div>
+
+        <div class="welcome-section">
+          <div class="user-greeting">Hola, <span id="userName">Juan Pérez</span></div>
+          <div class="account-balance">
+            $<span id="balance">15,750.00</span>
+            <span class="currency">COL$</span>
+          </div>
+        </div>
+
+        <div class="quick-actions">
+          <button class="action-btn" onclick="showScreen('transferScreen')">
+            <span class="action-icon">💸</span>
+            <span class="action-text">Transferir</span>
+          </button>
+          <button class="action-btn" onclick="showScreen('payScreen')">
+            <span class="action-icon">💳</span>
+            <span class="action-text">Pagar</span>
+          </button>
+          <button class="action-btn" onclick="showScreen('depositScreen')">
+            <span class="action-icon">💰</span>
+            <span class="action-text">Depositar</span>
+          </button>
+          <button class="action-btn" onclick="showScreen('historyScreen')">
+            <span class="action-icon">📊</span>
+            <span class="action-text">Historial</span>
+          </button>
+        </div>
+
+        <div class="transactions-section">
+          <div class="section-title">Transacciones Recientes</div>
+          <div id="recentTransactions"></div>
+        </div>
+      </div>
+
+      <!-- Transfer Screen -->
+      <div class="screen" id="transferScreen">
+        <div class="header">
+          <button class="back-btn" onclick="showScreen('dashboardScreen')">←</button>
+          <h2>Transferir Dinero</h2>
+        </div>
+
+        <div class="success-message" id="transferSuccess">✅ Transferencia realizada exitosamente</div>
+
+        <div class="form-group">
+          <label class="form-label">Cuenta Destino</label>
+          <select class="form-select" id="destinationAccount">
+            <option value="">Seleccionar cuenta</option>
+            <option value="123456789">Juan García - ***6789</option>
+            <option value="987654321">María López - ***4321</option>
+            <option value="456789123">Carlos Ruiz - ***9123</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Monto</label>
+          <input type="number" class="form-input" id="transferAmount" placeholder="0.00" step="0.01" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Concepto (Opcional)</label>
+          <input type="text" class="form-input" id="transferConcept" placeholder="Descripción de la transferencia" />
+        </div>
+
+        <button class="btn-primary" onclick="processTransfer()">Transferir</button>
+      </div>
+
+      <!-- Payment Screen -->
+      <div class="screen" id="payScreen">
+        <div class="header">
+          <button class="back-btn" onclick="showScreen('dashboardScreen')">←</button>
+          <h2>Pagar Servicios</h2>
+        </div>
+
+        <div class="success-message" id="paymentSuccess">✅ Pago realizado exitosamente</div>
+
+        <div class="form-group">
+          <label class="form-label">Tipo de Servicio</label>
+          <select class="form-select" id="serviceType">
+            <option value="">Seleccionar servicio</option>
+            <option value="electricity">Electricidad</option>
+            <option value="water">Agua</option>
+            <option value="gas">Gas</option>
+            <option value="internet">Internet</option>
+            <option value="phone">Teléfono</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Número de Cuenta/Contrato</label>
+          <input type="text" class="form-input" id="serviceAccount" placeholder="Ingrese el número" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Monto</label>
+          <input type="number" class="form-input" id="paymentAmount" placeholder="0.00" step="0.01" />
+        </div>
+
+        <button class="btn-primary" onclick="processPayment()">Pagar</button>
+      </div>
+
+      <!-- Deposit Screen -->
+      <div class="screen" id="depositScreen">
+        <div class="header">
+          <button class="back-btn" onclick="showScreen('dashboardScreen')">←</button>
+          <h2>Depositar</h2>
+        </div>
+
+        <div class="success-message" id="depositSuccess">✅ Depósito realizado exitosamente</div>
+
+        <div class="form-group">
+          <label class="form-label">Método de Depósito</label>
+          <select class="form-select" id="depositMethod">
+            <option value="">Seleccionar método</option>
+            <option value="check">Depósito de Cheque</option>
+            <option value="cash">Efectivo en ATM</option>
+            <option value="transfer">Transferencia Externa</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Monto</label>
+          <input type="number" class="form-input" id="depositAmount" placeholder="0.00" step="0.01" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Descripción</label>
+          <input type="text" class="form-input" id="depositDescription" placeholder="Descripción del depósito" />
+        </div>
+
+        <button class="btn-primary" onclick="processDeposit()">Depositar</button>
+      </div>
+
+      <!-- History Screen -->
+      <div class="screen" id="historyScreen">
+        <div class="header">
+          <button class="back-btn" onclick="showScreen('dashboardScreen')">←</button>
+          <h2>Historial de Transacciones</h2>
+        </div>
+
+        <div class="transactions-section">
+          <div id="transactionHistory"></div>
+        </div>
+      </div>
+
+      <!-- Cards Screen -->
+      <div class="screen" id="cardsScreen">
+        <div class="header">
+          <button class="back-btn" onclick="showScreen('dashboardScreen')">←</button>
+          <h2>Mis Tarjetas</h2>
+        </div>
+
+        <div class="card">
+          <div style="text-align: right; font-size: 1.2rem">💳</div>
+          <div class="card-number">4532 **** **** 1234</div>
+          <div class="card-info">
+            <div class="card-holder">JUAN PEREZ</div>
+            <div class="card-expiry">12/28</div>
+          </div>
+        </div>
+
+        <div class="card" style="background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%)">
+          <div style="text-align: right; font-size: 1.2rem">💎</div>
+          <div class="card-number">5412 **** **** 9876</div>
+          <div class="card-info">
+            <div class="card-holder">JUAN PEREZ</div>
+            <div class="card-expiry">06/27</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Screen -->
+      <div class="screen" id="profileScreen">
+        <div class="header">
+          <button class="back-btn" onclick="showScreen('dashboardScreen')">←</button>
+          <h2>Mi Perfil</h2>
+        </div>
+
+        <div class="welcome-section">
+          <div style="text-align: center; margin-bottom: 20px">
+            <div
+              style="
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 2rem;
+                color: white;
+                margin-bottom: 15px;
+              "
+            >
+              👤
+            </div>
+            <div class="user-greeting" style="text-align: center">Juan Pérez</div>
+            <div style="color: #666; font-size: 0.9rem">juan.perez@email.com</div>
+          </div>
+        </div>
+
+        <div class="quick-actions">
+          <button class="action-btn">
+            <span class="action-icon">🔒</span>
+            <span class="action-text">Seguridad</span>
+          </button>
+          <button class="action-btn">
+            <span class="action-icon">⚙️</span>
+            <span class="action-text">Configuración</span>
+          </button>
+          <button class="action-btn">
+            <span class="action-icon">📞</span>
+            <span class="action-text">Soporte</span>
+          </button>
+          <button class="action-btn" onclick="logout()">
+            <span class="action-icon">🚪</span>
+            <span class="action-text">Cerrar Sesión</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+      </div>
+
+      <!-- Bottom Navigation -->
+      <div class="bottom-nav">
+        <div class="nav-item active" onclick="showScreen('dashboardScreen')">
+          <span class="nav-icon">🏠</span>
+          <span class="nav-text">Inicio</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('cardsScreen')">
+          <span class="nav-icon">💳</span>
+          <span class="nav-text">Tarjetas</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('historyScreen')">
+          <span class="nav-icon">📊</span>
+          <span class="nav-text">Historial</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('profileScreen')">
+          <span class="nav-icon">👤</span>
+          <span class="nav-text">Perfil</span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Estado de la aplicación
+      let currentBalance = 15750.0;
+      let transactions = [
+        {
+          id: 1,
+          type: "transfer",
+          description: "Transferencia recibida de María López",
+          amount: 500.0,
+          date: "2025-08-18",
+          time: "14:30",
+        },
+        {
+          id: 2,
+          type: "payment",
+          description: "Pago de Electricidad",
+          amount: -120.5,
+          date: "2025-08-17",
+          time: "10:15",
+        },
+        {
+          id: 3,
+          type: "deposit",
+          description: "Depósito en ATM",
+          amount: 1000.0,
+          date: "2025-08-16",
+          time: "16:45",
+        },
+        {
+          id: 4,
+          type: "transfer",
+          description: "Transferencia a Carlos Ruiz",
+          amount: -250.0,
+          date: "2025-08-15",
+          time: "09:20",
+        },
+        {
+          id: 5,
+          type: "payment",
+          description: "Pago de Internet",
+          amount: -89.99,
+          date: "2025-08-14",
+          time: "11:30",
+        },
+      ];
+
+      // Función de login
+      function login() {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+
+        if (!username || !password) {
+          alert("Por favor, complete todos los campos");
+          return;
+        }
+
+        // Simular autenticación
+        showLoading(true);
+        setTimeout(() => {
+          showLoading(false);
+          showScreen("dashboardScreen");
+          updateBalance();
+          loadRecentTransactions();
+        }, 1500);
+      }
+
+      // Función de logout
+      function logout() {
+        if (confirm("¿Está seguro que desea cerrar sesión?")) {
+          showScreen("loginScreen");
+          document.getElementById("username").value = "";
+          document.getElementById("password").value = "";
+        }
+      }
+
+      // Mostrar pantalla
+      function showScreen(screenId) {
+        // Ocultar todas las pantallas
+        const screens = document.querySelectorAll(".screen");
+        screens.forEach((screen) => screen.classList.remove("active"));
+
+        // Mostrar la pantalla seleccionada
+        document.getElementById(screenId).classList.add("active");
+
+        // Actualizar navegación
+        if (screenId !== "loginScreen") {
+          updateNavigation(screenId);
+        }
+
+        // Ocultar navegación en pantalla de login
+        const bottomNav = document.querySelector(".bottom-nav");
+        bottomNav.style.display = screenId === "loginScreen" ? "none" : "flex";
+      }
+
+      // Actualizar navegación
+      function updateNavigation(activeScreen) {
+        const navItems = document.querySelectorAll(".nav-item");
+        navItems.forEach((item) => item.classList.remove("active"));
+
+        const screenNavMap = {
+          dashboardScreen: 0,
+          cardsScreen: 1,
+          historyScreen: 2,
+          profileScreen: 3,
+        };
+
+        const activeIndex = screenNavMap[activeScreen];
+        if (activeIndex !== undefined) {
+          navItems[activeIndex].classList.add("active");
+        }
+      }
+
+      // Actualizar balance
+      function updateBalance() {
+        document.getElementById("balance").textContent = currentBalance.toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+      }
+
+      // Cargar transacciones recientes
+      function loadRecentTransactions() {
+        const container = document.getElementById("recentTransactions");
+        const recentTransactions = transactions.slice(0, 3);
+
+        container.innerHTML = recentTransactions
+          .map(
+            (transaction) => `
+                <div class="transaction-item">
+                    <div class="transaction-info">
+                        <div class="transaction-title">${transaction.description}</div>
+                        <div class="transaction-date">${formatDate(transaction.date)} • ${transaction.time}</div>
+                    </div>
+                    <div class="transaction-amount ${transaction.amount >= 0 ? "amount-positive" : "amount-negative"}">
+                        ${transaction.amount >= 0 ? "+" : ""}$${Math.abs(transaction.amount).toFixed(2)}
+                    </div>
+                </div>
+            `
+          )
+          .join("");
+      }
+
+      // Cargar historial completo
+      function loadTransactionHistory() {
+        const container = document.getElementById("transactionHistory");
+
+        container.innerHTML = transactions
+          .map(
+            (transaction) => `
+                <div class="transaction-item">
+                    <div class="transaction-info">
+                        <div class="transaction-title">${transaction.description}</div>
+                        <div class="transaction-date">${formatDate(transaction.date)} • ${transaction.time}</div>
+                    </div>
+                    <div class="transaction-amount ${transaction.amount >= 0 ? "amount-positive" : "amount-negative"}">
+                        ${transaction.amount >= 0 ? "+" : ""}$${Math.abs(transaction.amount).toFixed(2)}
+                    </div>
+                </div>
+            `
+          )
+          .join("");
+      }
+
+      // Procesar transferencia
+      function processTransfer() {
+        const destination = document.getElementById("destinationAccount").value;
+        const amount = parseFloat(document.getElementById("transferAmount").value);
+        const concept = document.getElementById("transferConcept").value || "Transferencia";
+
+        if (!destination || !amount || amount <= 0) {
+          alert("Por favor, complete todos los campos correctamente");
+          return;
+        }
+
+        if (amount > currentBalance) {
+          alert("Saldo insuficiente");
+          return;
+        }
+
+        showLoading(true);
+        setTimeout(() => {
+          // Actualizar balance
+          currentBalance -= amount;
+          updateBalance();
+
+          // Agregar transacción
+          const newTransaction = {
+            id: transactions.length + 1,
+            type: "transfer",
+            description: `Transferencia: ${concept}`,
+            amount: -amount,
+            date: new Date().toISOString().split("T")[0],
+            time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          };
+          transactions.unshift(newTransaction);
+
+          // Mostrar mensaje de éxito
+          showLoading(false);
+          showSuccessMessage("transferSuccess");
+
+          // Limpiar formulario
+          document.getElementById("destinationAccount").value = "";
+          document.getElementById("transferAmount").value = "";
+          document.getElementById("transferConcept").value = "";
+
+          loadRecentTransactions();
+        }, 2000);
+      }
+
+      // Procesar pago
+      function processPayment() {
+        const serviceType = document.getElementById("serviceType").value;
+        const serviceAccount = document.getElementById("serviceAccount").value;
+        const amount = parseFloat(document.getElementById("paymentAmount").value);
+
+        if (!serviceType || !serviceAccount || !amount || amount <= 0) {
+          alert("Por favor, complete todos los campos correctamente");
+          return;
+        }
+
+        if (amount > currentBalance) {
+          alert("Saldo insuficiente");
+          return;
+        }
+
+        showLoading(true);
+        setTimeout(() => {
+          // Actualizar balance
+          currentBalance -= amount;
+          updateBalance();
+
+          // Agregar transacción
+          const serviceNames = {
+            electricity: "Electricidad",
+            water: "Agua",
+            gas: "Gas",
+            internet: "Internet",
+            phone: "Teléfono",
+          };
+
+          const newTransaction = {
+            id: transactions.length + 1,
+            type: "payment",
+            description: `Pago de ${serviceNames[serviceType]}`,
+            amount: -amount,
+            date: new Date().toISOString().split("T")[0],
+            time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          };
+          transactions.unshift(newTransaction);
+
+          // Mostrar mensaje de éxito
+          showLoading(false);
+          showSuccessMessage("paymentSuccess");
+
+          // Limpiar formulario
+          document.getElementById("serviceType").value = "";
+          document.getElementById("serviceAccount").value = "";
+          document.getElementById("paymentAmount").value = "";
+
+          loadRecentTransactions();
+        }, 2000);
+      }
+
+      // Procesar depósito
+      function processDeposit() {
+        const method = document.getElementById("depositMethod").value;
+        const amount = parseFloat(document.getElementById("depositAmount").value);
+        const description = document.getElementById("depositDescription").value || "Depósito";
+
+        if (!method || !amount || amount <= 0) {
+          alert("Por favor, complete todos los campos correctamente");
+          return;
+        }
+
+        showLoading(true);
+        setTimeout(() => {
+          // Actualizar balance
+          currentBalance += amount;
+          updateBalance();
+
+          // Agregar transacción
+          const methodNames = {
+            check: "Depósito de Cheque",
+            cash: "Depósito en ATM",
+            transfer: "Transferencia Externa",
+          };
+
+          const newTransaction = {
+            id: transactions.length + 1,
+            type: "deposit",
+            description: `${methodNames[method]}: ${description}`,
+            amount: amount,
+            date: new Date().toISOString().split("T")[0],
+            time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          };
+          transactions.unshift(newTransaction);
+
+          // Mostrar mensaje de éxito
+          showLoading(false);
+          showSuccessMessage("depositSuccess");
+
+          // Limpiar formulario
+          document.getElementById("depositMethod").value = "";
+          document.getElementById("depositAmount").value = "";
+          document.getElementById("depositDescription").value = "";
+
+          loadRecentTransactions();
+        }, 2000);
+      }
+
+      // Mostrar mensaje de éxito
+      function showSuccessMessage(elementId) {
+        const message = document.getElementById(elementId);
+        message.classList.add("show");
+        setTimeout(() => {
+          message.classList.remove("show");
+        }, 3000);
+      }
+
+      // Mostrar/ocultar loading
+      function showLoading(show) {
+        const loading = document.getElementById("loading");
+        if (show) {
+          loading.classList.add("show");
+        } else {
+          loading.classList.remove("show");
+        }
+      }
+
+      // Formatear fecha
+      function formatDate(dateString) {
+        const date = new Date(dateString);
+        const today = new Date();
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+
+        if (date.toDateString() === today.toDateString()) {
+          return "Hoy";
+        } else if (date.toDateString() === yesterday.toDateString()) {
+          return "Ayer";
+        } else {
+          return date.toLocaleDateString("es-ES", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+          });
+        }
+      }
+
+      // Event listeners para cargar datos al cambiar de pantalla
+      document.addEventListener("DOMContentLoaded", function () {
+        // Interceptar clics en navegación para cargar datos específicos
+        const originalShowScreen = window.showScreen;
+        window.showScreen = function (screenId) {
+          originalShowScreen(screenId);
+
+          // Cargar datos específicos según la pantalla
+          if (screenId === "historyScreen") {
+            loadTransactionHistory();
+          }
+        };
+      });
+
+      // Prevenir zoom en inputs (mejora UX móvil)
+      document.addEventListener("touchstart", function () {}, true);
+
+      // Simulación de notificaciones push
+      function simulateNotification() {
+        if ("Notification" in window && Notification.permission === "granted") {
+          new Notification("MiBanco", {
+            body: "Has recibido una transferencia de $500.00",
+            icon: "🏦",
+          });
+        }
+      }
+
+      // Pedir permisos de notificación al cargar
+      if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+      }
+
+      // Función para simular actualizaciones en tiempo real
+      function simulateRealTimeUpdates() {
+        setInterval(() => {
+          // Simular pequeñas fluctuaciones en el balance (simulación)
+          if (Math.random() < 0.1) {
+            // 10% de probabilidad cada 30 segundos
+            const randomAmount = Math.floor(Math.random() * 100) + 1;
+            currentBalance += randomAmount;
+            updateBalance();
+
+            // Agregar transacción simulada
+            const newTransaction = {
+              id: transactions.length + 1,
+              type: "transfer",
+              description: "Transferencia recibida",
+              amount: randomAmount,
+              date: new Date().toISOString().split("T")[0],
+              time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+            };
+            transactions.unshift(newTransaction);
+            loadRecentTransactions();
+          }
+        }, 30000); // Cada 30 segundos
+      }
+
+      // Iniciar simulación de actualizaciones (comentado para no ser intrusivo)
+      // simulateRealTimeUpdates();
+
+      // Manejo de orientación de dispositivo
+      window.addEventListener("orientationchange", function () {
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+        }, 100);
+      });
+
+      // Prevenir selección de texto en botones
+      document.querySelectorAll("button, .action-btn, .nav-item").forEach((element) => {
+        element.style.userSelect = "none";
+        element.style.webkitUserSelect = "none";
+      });
+    </script>
+  </body>
+</html>
