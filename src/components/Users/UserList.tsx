@@ -105,7 +105,7 @@ export const UserList: React.FC<UserListProps> = ({
         </TableHeader>
         <TableBody>
           {users.map((user) => (
-            <TableRow key={user.id} className="user-row">
+            <TableRow key={user._id} className="user-row">
               <TableCell className="user-cell user-name-cell">
                 <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-3)" }}>
                   <div
@@ -123,15 +123,15 @@ export const UserList: React.FC<UserListProps> = ({
                       fontSize: "var(--font-size-sm)",
                     }}
                   >
-                    {getInitials(user.nombre)}
+                    {getInitials(user.name)}
                   </div>
                   <div>
-                    <div style={{ fontWeight: "500" }}>{user.nombre}</div>
+                    <div style={{ fontWeight: "500" }}>{`${user.name} ${user.lastName}`}</div>
                   </div>
                 </div>
               </TableCell>
               <TableCell className="user-cell user-email-cell">{user.email}</TableCell>
-              <TableCell className="user-cell user-phone-cell">{user.telefono || "-"}</TableCell>
+              <TableCell className="user-cell user-phone-cell">{user.whatsapp || "-"}</TableCell>
               <TableCell className="user-cell">
                 <span
                   style={{
@@ -149,16 +149,16 @@ export const UserList: React.FC<UserListProps> = ({
                   💳 {user.cuentas?.length || 0}
                 </span>
               </TableCell>
-              <TableCell className="user-cell user-date-cell">{formatDate(user.fechaCreacion)}</TableCell>
+              <TableCell className="user-cell user-date-cell">{formatDate(user.createdAt)}</TableCell>
               <TableCell className="user-cell user-actions-cell">
                 <div className="action-buttons">
-                  <Button variant="secondary" size="sm" onClick={() => onViewAccounts(user.id)} title="Ver cuentas">
+                  <Button variant="secondary" size="sm" onClick={() => onViewAccounts(user._id)} title="Ver cuentas">
                     💳
                   </Button>
                   <Button variant="secondary" size="sm" onClick={() => onEditUser(user)} title="Editar usuario">
                     ✏️
                   </Button>
-                  <Button variant="error" size="sm" onClick={() => onDeleteUser(user.id)} title="Eliminar usuario">
+                  <Button variant="error" size="sm" onClick={() => onDeleteUser(user._id)} title="Eliminar usuario">
                     🗑️
                   </Button>
                 </div>

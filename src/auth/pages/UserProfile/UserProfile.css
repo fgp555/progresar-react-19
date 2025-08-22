@@ -1,0 +1,29 @@
+.user-profile {
+  background-color: var(--color-bg-page);
+  color: var(--text-color);
+  font-family: var(--font-family);
+  padding: 1.5em;
+  border-radius: var(--border-radius);
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  margin: 2em auto;
+  border: 1px solid var(--line-color);
+}
+
+.user-profile h2 {
+  margin-bottom: 1em;
+  color: var(--accent-color);
+}
+
+.user-profile p {
+  margin: 0.5em 0;
+  color: var(--secondary-text-color);
+}
+
+.user-profile-loading,
+.user-profile-error {
+  font-family: var(--font-family);
+  color: var(--secondary-text-color);
+  text-align: center;
+  margin-top: 2em;
+}

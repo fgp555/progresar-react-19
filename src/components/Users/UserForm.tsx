@@ -11,18 +11,18 @@ interface UserFormProps {
 
 export const UserForm: React.FC<UserFormProps> = ({ onSubmit, onCancel, isLoading = false }) => {
   const [formData, setFormData] = useState<CreateUserDto>({
-    nombre: "",
+    name: "",
     email: "",
-    telefono: "",
+    whatsapp: "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
-    if (!formData.nombre.trim()) {
+    if (!formData.name.trim()) {
       newErrors.nombre = "El nombre es requerido";
-    } else if (formData.nombre.trim().length < 2) {
+    } else if (formData.name.trim().length < 2) {
       newErrors.nombre = "El nombre debe tener al menos 2 caracteres";
     }
 
@@ -32,7 +32,7 @@ export const UserForm: React.FC<UserFormProps> = ({ onSubmit, onCancel, isLoadin
       newErrors.email = "El formato del email es inválido";
     }
 
-    if (formData.telefono && !/^\+?[\d\s\-\(\)]+$/.test(formData.telefono)) {
+    if (formData.whatsapp && !/^\+?[\d\s\-\(\)]+$/.test(formData.whatsapp)) {
       newErrors.telefono = "El formato del teléfono es inválido";
     }
 
@@ -48,7 +48,7 @@ export const UserForm: React.FC<UserFormProps> = ({ onSubmit, onCancel, isLoadin
     try {
       await onSubmit({
         ...formData,
-        telefono: formData.telefono?.trim() || undefined,
+        whatsapp: formData.whatsapp?.trim() || undefined,
       });
     } catch (error) {
       // Error handling is done in the parent component
@@ -77,7 +77,7 @@ export const UserForm: React.FC<UserFormProps> = ({ onSubmit, onCancel, isLoadin
         <Input
           label="Nombre completo *"
           name="nombre"
-          value={formData.nombre}
+          value={formData.name}
           onChange={handleChange}
           error={errors.nombre}
           placeholder="Ingrese el nombre completo"
@@ -98,7 +98,7 @@ export const UserForm: React.FC<UserFormProps> = ({ onSubmit, onCancel, isLoadin
         <Input
           label="Teléfono"
           name="telefono"
-          value={formData.telefono}
+          value={formData.whatsapp}
           onChange={handleChange}
           error={errors.telefono}
           placeholder="+51-999-123456"

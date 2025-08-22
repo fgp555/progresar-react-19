@@ -18,7 +18,7 @@ const accountTypeOptions = [
 
 const currencyOptions = [
   { value: "", label: "Seleccione moneda" },
-  { value: "COL$", label: "💵 COL$ - Dólares Americanos" },
+  { value: "USD", label: "💵 COL - Pesos Colombianos" },
 ];
 
 export const AccountForm: React.FC<AccountFormProps> = ({ onSubmit, onCancel, isLoading = false }) => {

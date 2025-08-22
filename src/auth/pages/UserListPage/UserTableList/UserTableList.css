@@ -1,0 +1,156 @@
+.UserTableRespoComp {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 10rem;
+  }
+
+  thead {
+    background-color: var(--base-color);
+  }
+
+  th,
+  td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--line-color);
+    color: var(--text-color);
+  }
+
+  th {
+    font-weight: 600;
+    background-color: var(--accent-color);
+    color: var(--white-color);
+  }
+
+  tr:nth-child(even) {
+    background-color: var(--hover-color);
+  }
+
+  tr:hover {
+    background-color: var(--hover-color);
+  }
+
+  td {
+    font-size: 14px;
+    color: var(--secondary-text-color);
+  }
+
+  .actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    i {
+      cursor: pointer;
+      color: var(--text-color);
+      font-size: 1.5rem;
+      &.icon-pencil:hover {
+        color: var(--secondary-text-color);
+      }
+      &.icon-trash:hover {
+        color: var(--accent-color);
+      }
+    }
+    a {
+      text-decoration: none;
+    }
+  }
+
+  /* ========== Media Queries ========== */
+
+  @media screen and (max-width: 60rem) {
+    table {
+      border: 0;
+    }
+
+    thead {
+      display: none; /* Oculta encabezados de tabla en pantallas pequeñas */
+    }
+
+    tr {
+      display: block;
+      margin-bottom: 10px;
+      border: 1px solid var(--line-color);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    td {
+      display: flex;
+      /* justify-content: space-between; */
+      align-items: center;
+      padding: 10px;
+      font-size: 12px;
+    }
+
+    td::before {
+      content: attr(data-label);
+      display: inline-flex;
+      align-items: center;
+      font-weight: bold;
+      color: var(--text-color);
+    }
+
+    /* ========== Iconos ========= */
+
+    td[data-label="Nombre"]::before {
+      content: "\f007"; /* Icono de usuario */
+      font-family: "Font Awesome 5 Free";
+      font-weight: 900;
+      margin-right: 10px;
+    }
+
+    td[data-label="Correo"]::before {
+      content: "\f0e0"; /* Icono de correo */
+      font-family: "Font Awesome 5 Free";
+      font-weight: 900;
+      margin-right: 10px;
+    }
+
+    td[data-label="WhatsApp"]::before {
+      content: "\f095"; /* Icono de WhatsApp */
+      font-family: "Font Awesome 5 Free";
+      font-weight: 900;
+      margin-right: 10px;
+    }
+
+    td[data-label="Rol"]::before {
+      content: "\f02d"; /* Icono de rol */
+      font-family: "Font Awesome 5 Free";
+      font-weight: 900;
+      margin-right: 10px;
+    }
+
+    td[data-label="Operador"]::before {
+      content: "\f207"; /* Icono de operador */
+      font-family: "Font Awesome 5 Free";
+      font-weight: 900;
+      margin-right: 10px;
+    }
+
+    td[data-label="Acciones"]::before {
+      content: "\f0e7"; /* Icono de operador */
+      font-family: "Font Awesome 5 Free";
+      font-weight: 900;
+      margin-right: 10px;
+    }
+  }
+  .user-photo {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--line-color);
+  }
+
+  .default-icon {
+    font-size: 1.5rem;
+    color: var(--secondary-text-color);
+  }
+}

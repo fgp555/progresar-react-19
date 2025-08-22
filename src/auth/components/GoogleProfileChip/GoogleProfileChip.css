@@ -1,0 +1,29 @@
+.GoogleProfile {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: var(--text-color);
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+  font-family: var(--font-family);
+}
+
+.GoogleProfile:hover {
+  background-color: var(--hover-color);
+}
+
+.GoogleProfile img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.GoogleProfile span {
+  font-weight: 500;
+  font-size: 14px;
+  white-space: nowrap;
+  color: var(--text-color);
+}

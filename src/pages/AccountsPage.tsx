@@ -14,6 +14,16 @@ const AccountsPage: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<string>("");
   const [notification, setNotification] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
+  const [isActive, setIsActive] = useState(true);
+  // const isActive = true;
+
+  const handleToggle = (account: any) => {
+    const newState = !isActive;
+    setIsActive(newState);
+    console.log("account", account);
+    // onToggle(account.id, newState); // Llamada al backend para actualizar
+  };
+
   useEffect(() => {
     fetchAllAccounts();
   }, [fetchAllAccounts]);
@@ -128,8 +138,8 @@ const AccountsPage: React.FC = () => {
               >
                 <option value="">Seleccione un usuario...</option>
                 {users.map((user) => (
-                  <option key={user.id} value={user.id}>
-                    {user.nombre} - {user.email}
+                  <option key={user._id} value={user._id}>
+                    {user.name} - {user.email}
                   </option>
                 ))}
               </select>
@@ -236,7 +246,16 @@ const AccountsPage: React.FC = () => {
                     <div className="account-type">
                       {getAccountTypeIcon(account.tipoCuenta)} {account.tipoCuenta}
                     </div>
-                    <div className={`account-status ${account.estado}`}>{account.estado}</div>
+                    <div className={`account-status ${account.estado}`}>
+                      {account.estado}{" "}
+                      <Button variant="secondary" size="sm" onClick={() => handleToggle(account.id)}>
+                        {isActive ? (
+                          <i className="fa-solid fa-toggle-on" style={{ color: "green" }}></i>
+                        ) : (
+                          <i className="fa-solid fa-toggle-off" style={{ color: "red" }}></i>
+                        )}
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="account-number">{account.numeroCuenta}</div>
@@ -244,13 +263,15 @@ const AccountsPage: React.FC = () => {
                   <div className="account-balance">
                     <div className="balance-label">Saldo Disponible</div>
                     <div className="balance-amount">{formatBalance(Number(account.saldo))}</div>
-                    <div className="balance-currency">{account.moneda}</div>
+                    {/* <div className="balance-currency">{account.moneda}</div> */}
                   </div>
 
                   <div className="account-meta">
                     <div className="meta-item">
                       <div className="meta-label">Propietario</div>
-                      <div className="meta-value">{account.user?.nombre || "No disponible"}</div>
+                      <div className="meta-value">
+                        {account.user?.name + " " + account.user?.lastName || "No disponible"}
+                      </div>
                     </div>
                     <div className="meta-item">
                       <div className="meta-label">Fecha Creación</div>
@@ -269,9 +290,9 @@ const AccountsPage: React.FC = () => {
                         🏦 Préstamos
                       </Button>
                     </Link>
-                    {/* <Button variant="secondary" size="sm">
-                      📊 Detalles
-                    </Button> */}
+                    <Button variant="secondary" size="sm">
+                      <i className="fa-solid fa-pen"></i>
+                    </Button>
                   </div>
                 </CardBody>
               </Card>

@@ -17,25 +17,44 @@ export interface ApiResponse<T> {
 
 // ==================== USER TYPES ====================
 
+export const UserRoleEnum = {
+  USER: "user",
+  ADMIN: "admin",
+  SUPERADMIN: "superadmin",
+  COLLABORATOR: "collaborator",
+  DEVELOPER: "developer",
+  GUEST: "guest",
+} as const;
+
+export type UserRoleEnum = (typeof UserRoleEnum)[keyof typeof UserRoleEnum];
+
 export interface User {
-  id: string;
-  nombre: string;
+  _id: string;
+  username: string;
+  name: string;
+  lastName?: string;
   email: string;
-  telefono?: string;
-  fechaCreacion: string;
+  whatsapp?: string;
+  photo?: string;
+  isVisible: string;
+  isActive: string;
+  role: UserRoleEnum;
+  createdAt: string;
   cuentas?: Account[];
 }
 
 export interface CreateUserDto {
-  nombre: string;
+  name: string;
+  lastName?: string;
+
   email: string;
-  telefono?: string;
+  whatsapp?: string;
 }
 
 export interface UpdateUserDto {
-  nombre?: string;
+  name?: string;
   email?: string;
-  telefono?: string;
+  whatsapp?: string;
 }
 
 // ==================== ACCOUNT TYPES ====================
@@ -72,8 +91,9 @@ export interface Account {
   fechaCreacion: string;
   estado: AccountStatus;
   user?: {
-    nombre: string;
+    name: string;
     email: string;
+    lastName?: string;
   };
   transacciones?: Transaction[];
   prestamos?: Loan[];
@@ -178,8 +198,9 @@ export interface Loan {
     id: string;
     numeroCuenta: string;
     usuario?: {
-      nombre: string;
+      name: string;
       email: string;
+      lastName?: string;
     };
   };
   cuotas?: LoanInstallment[];

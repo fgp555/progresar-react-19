@@ -1,0 +1,40 @@
+.GoogleLoginButton {
+  --active-color: #eeeeee;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  background-color: var(--base-color);
+  color: var(--text-color);
+  border: 1px solid var(--line-color);
+  border-radius: var(--border-radius);
+
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-family);
+  text-decoration: none;
+
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.GoogleLoginButton img {
+  width: 20px;
+  height: 20px;
+}
+
+.GoogleLoginButton:hover {
+  background-color: var(--hover-color);
+  box-shadow: 0 2px 6px var(--shadow-color);
+}
+
+.GoogleLoginButton:active {
+  background-color: var(--active-color);
+}
+
+.GoogleLoginButton:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent-color);
+}

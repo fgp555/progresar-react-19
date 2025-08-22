@@ -344,7 +344,8 @@ body {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--secondary-200);
-  overflow: hidden;
+  overflow-x: auto;
+  /* overflow: hidden; */
 
   & table {
     width: 100%;

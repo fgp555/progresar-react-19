@@ -1,15 +1,16 @@
-import { useState } from "react";
-import { Routes, Route } from "react-router-dom";
-import { Layout } from "./components/Layout/Layout";
 import { NotificationContainer } from "./components/UI";
-import type { Notification } from "./types";
-
-// Pages (we'll create these next)
-import DashboardPage from "./pages/Dashboard";
-import UsersPage from "./pages/UsersPage";
+import { Routes, Route } from "react-router-dom";
+import { useState } from "react";
 import AccountsPage from "./pages/AccountsPage";
-import TransactionsPage from "./pages/TransactionsPage";
+import AdminLayout from "./layout/AdminLayout/AdminLayout";
+import DashboardPage from "./pages/Dashboard";
 import LoansPage from "./pages/LoansPage";
+import LoginPage from "./auth/pages/LoginPage/LoginPage";
+import TransactionsPage from "./pages/TransactionsPage";
+import type { Notification } from "./types";
+import UsersPage from "./pages/UsersPage";
+import PasswordForgot from "./auth/pages/PasswordForgot/PasswordForgot";
+import PasswordRestore from "./auth/pages/PasswordRestore/PasswordRestore";
 
 function App() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -33,16 +34,20 @@ function App() {
 
   return (
     <div className="App">
-      <Layout>
-        <Routes>
-          <Route path="/" element={<DashboardPage />} />
+      <Routes>
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/password/forgot" element={<PasswordForgot />} />
+        <Route path="/password/reset" element={<PasswordRestore />} />
+
+        <Route element={<AdminLayout />}>
+          <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/users" element={<UsersPage />} />
           <Route path="/accounts" element={<AccountsPage />} />
           <Route path="/transactions/:accountId" element={<TransactionsPage />} />
           <Route path="/loans/:accountId" element={<LoansPage />} />
-          <Route path="*" element={<div>Página no encontrada</div>} />
-        </Routes>
-      </Layout>
+        </Route>
+        <Route path="*" element={<div>Página no encontrada</div>} />
+      </Routes>
 
       <NotificationContainer notifications={notifications} onClose={removeNotification} />
     </div>

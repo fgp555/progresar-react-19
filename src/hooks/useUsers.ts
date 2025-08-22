@@ -47,7 +47,7 @@ export const useUsers = () => {
     try {
       const response = await apiService.updateUser(id, userData);
       if (response.success && response.data) {
-        setUsers((prev) => prev.map((user) => (user.id === id ? response.data! : user)));
+        setUsers((prev) => prev.map((user) => (user._id === id ? response.data! : user)));
         return response.data;
       }
       throw new Error(response.message || "Failed to update user");
@@ -66,7 +66,7 @@ export const useUsers = () => {
     try {
       const response = await apiService.deleteUser(id);
       if (response.success) {
-        setUsers((prev) => prev.filter((user) => user.id !== id));
+        setUsers((prev) => prev.filter((user) => user._id !== id));
       } else {
         throw new Error(response.message || "Failed to delete user");
       }

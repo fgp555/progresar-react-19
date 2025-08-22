@@ -1,0 +1,37 @@
+.breadcrumbs {
+  font-family: "Poppins", sans-serif;
+  font-size: 14px;
+  color: var(--text-color);
+}
+
+.breadcrumbs ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.breadcrumb-item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.breadcrumb-link {
+  color: var(--text-color);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.breadcrumb-link:hover {
+  color: var(--accent-color);
+}
+
+.breadcrumb-separator {
+  margin: 0 5px;
+  color: var(--line-color);
+}
+
+.breadcrumb-current {
+  color: var(--secondary-text-color);
+}

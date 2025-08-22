@@ -145,7 +145,7 @@ export const AccountList: React.FC<AccountListProps> = ({
                 {getAccountTypeBadge(account.tipoCuenta)}
               </TableCell>
               <TableCell className="account-cell account-number-cell">{account.numeroCuenta}</TableCell>
-              <TableCell className="account-cell">{account.user?.nombre || "No disponible"}</TableCell>
+              <TableCell className="account-cell">{account.user?.name || "No disponible"}</TableCell>
               <TableCell className="account-cell account-balance-cell">
                 {formatBalance(Number(account.saldo))}
               </TableCell>

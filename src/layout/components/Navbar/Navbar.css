@@ -1,0 +1,333 @@
+.theme-transition {
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+@media (min-width: 60rem) {
+  .navbar-container {
+    --navbar-height: 65px;
+    --max-width: 82.5rem;
+
+    position: fixed;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    left: 0;
+    right: 0;
+    z-index: 99;
+    font-weight: bold;
+    background-color: var(--color-bg-page);
+    color: var(--text-color);
+    border-bottom: 1px solid var(--line-color);
+    transition: background-color 0.5s ease, color 0.5s ease;
+    white-space: nowrap;
+    user-select: none;
+
+    .navbarLogo {
+      margin: 0;
+      padding: 0;
+      align-self: center;
+    }
+    .menuIconMobile {
+      display: none;
+    }
+    .menuContainer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+    .menuContainer.active {
+      display: flex;
+    }
+    .iconClose {
+      display: none;
+    }
+    .navbarLeft {
+      position: relative;
+      display: flex;
+      align-items: center;
+      list-style: none;
+      gap: 18px;
+      z-index: 99;
+      width: 100%;
+      /* background-color: peru; */
+    }
+    .navItem {
+      position: relative;
+      display: inline-block;
+      padding: 1.3rem;
+      cursor: pointer;
+      border-top: 4px solid transparent;
+      border-bottom: 4px solid transparent;
+    }
+    .navItem:hover,
+    .navItem.active {
+      border-bottom: 4px solid var(--accent-color);
+    }
+
+    /* ------------------------------------- MENU ------------------------------------ */
+    .megaMenuOverlay {
+      position: fixed;
+      top: var(--navbar-height);
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #04101e;
+      opacity: 0.7;
+      /* #04101E */
+    }
+
+    .megaMenu {
+      position: fixed;
+      display: flex;
+      flex-direction: column;
+      top: var(--navbar-height);
+      width: 100%;
+      left: 0;
+      align-items: start;
+      margin-left: 0;
+      font-weight: lighter;
+      background-color: var(--base-color);
+      color: var(--text-color);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      z-index: 99; /* por encima del overlay */
+      transition: background-color 0.5s ease, color 0.5s ease;
+      border-top: 1px solid var(--line-color);
+      cursor: initial;
+    }
+
+    /*-------------- MENU PRODUCTOS/RECURSOS - 4 COLUMNAS ---------*/
+    .megaMenuColumns {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2rem;
+      left: 0;
+    }
+    /*--------- MENU SOLUCIONES - 3 COLUMNAS ---------------------*/
+    .megaMenuColumnsSoluciones {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2rem 4rem;
+      left: 0;
+    }
+
+    .megaMenuContent {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: flex;
+      padding: 56px 40px 72px 32px;
+      flex-direction: column;
+    }
+
+    .iconColumn {
+      width: auto;
+      margin-right: 0.5rem;
+      flex-shrink: 0;
+    }
+    .textColumn h4 {
+      margin-top: 0;
+      margin-bottom: 0.3rem;
+      font-size: 1rem;
+      max-width: 100%;
+      font-size: 14px;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      white-space: normal;
+    }
+    .textColumn p {
+      max-width: 100%;
+      font-size: 14px;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      white-space: normal;
+    }
+    .navLink {
+      color: var(--text-color);
+      text-decoration: none;
+      transition: background-color 0.5s ease, color 0.5s ease;
+    }
+
+    .navLinkActive {
+      /* color: var(--text-color); */
+      color: var(--accent-color);
+      font-weight: bold;
+      text-decoration: none;
+      transition: background-color 0.5s ease, color 0.5s ease;
+      /* border-bottom: 1px solid var(--accent-color); */
+    }
+
+    /* ------------------ BOTONES ------------------------------------ */
+    .iconContainer {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .iconContainer span {
+      font-weight: 400;
+    }
+
+    .chevronIcon {
+      display: inline-block;
+      margin-left: 0.5rem;
+      transition: transform 0.3s ease;
+    }
+    .chevronUp {
+      transform: rotate(180deg);
+    }
+    .desktopOverlay {
+      position: fixed;
+      top: var(--navbar-height);
+      left: 0;
+      width: 100%;
+      height: calc(100vh - var(--navbar-height));
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 99;
+    }
+    .navbarRight {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+    .navbarCenter {
+      width: 100%;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .navbarCenter {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .navbarButtons {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 1rem;
+      /* background-color: peru; */
+    }
+    .buttonsAuth {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 1rem;
+    }
+  }
+}
+
+.navbar-container {
+  .menuItem {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    left: 0;
+    gap: 0.5rem;
+    cursor: pointer;
+  }
+  .linkWrapper {
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+  }
+
+  .linkWrapper h4,
+  .linkWrapper i,
+  .linkWrapper span {
+    color: var(--text-color);
+    transition: color 0.1s ease;
+    margin-bottom: 1rem;
+  }
+
+  .linkWrapper h4 {
+    font-size: 1rem;
+    font-weight: 400;
+    max-width: 20ch;
+  }
+
+  .linkWrapper p {
+    font-size: 0.8rem;
+    font-weight: 300;
+    color: var(--secondary-text-color);
+    /* max-width: 20ch; */
+  }
+
+  .linkWrapper:hover h4,
+  .linkWrapper:hover i,
+  .linkWrapper:hover span {
+    color: var(--color-primary-red-700);
+  }
+
+  .menuTitle {
+    margin: 0;
+    padding: 0;
+    margin-bottom: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--secondary-text-color);
+    text-transform: uppercase;
+  }
+  .languageContainer {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .iconContainer > a > i {
+    color: var(--text-color);
+  }
+
+  .buttonContainer {
+    display: flex;
+    gap: 1rem;
+  }
+  .buttonLogin,
+  .buttonRegister {
+    height: 40px;
+    padding: 0 18px;
+    border: 2px solid var(--text-color);
+    display: inline-block;
+    background-color: var(--base-color);
+    color: var(--text-color);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: 0.3s ease;
+
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .buttonLogin {
+    background-color: var(--base-color);
+    color: var(--text-color);
+  }
+  .buttonRegister {
+    background-color: var(--text-color);
+    color: var(--base-color);
+  }
+  .buttonLogin:hover {
+    /* background-color: var(--text-color); */
+    /* color: var(--base-color); */
+    opacity: 0.7;
+  }
+  .buttonRegister:hover {
+    /* background-color: var(--base-color); */
+    /* color: var(--text-color); */
+    opacity: 0.7;
+  }
+  .icon-box {
+    cursor: pointer;
+  }
+}
+.no-scroll {
+  overflow: hidden;
+}

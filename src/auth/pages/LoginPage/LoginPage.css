@@ -1,0 +1,936 @@
+/* LoginPage.css */
+
+.LoginPage {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary-50) 0%, var(--secondary-100) 100%);
+  padding: var(--spacing-4);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Floating bubbles/orbs background */
+.LoginPage::before,
+.LoginPage::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.LoginPage::before {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 40%, transparent 70%);
+  top: -150px;
+  left: -150px;
+  animation: floatBubble1 15s ease-in-out infinite;
+  filter: blur(1px);
+}
+
+.LoginPage::after {
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.08) 0%, rgba(239, 68, 68, 0.03) 50%, transparent 80%);
+  bottom: -100px;
+  right: -100px;
+  animation: floatBubble2 18s ease-in-out infinite reverse;
+  filter: blur(0.5px);
+}
+
+/* Additional floating orbs */
+.LoginPage .floating-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+  filter: blur(1px);
+}
+
+.LoginPage .floating-orb:nth-child(1) {
+  width: 80px;
+  height: 80px;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.12) 0%, rgba(239, 68, 68, 0.04) 60%, transparent 100%);
+  top: 20%;
+  right: 15%;
+  animation: floatOrb1 12s ease-in-out infinite;
+}
+
+.LoginPage .floating-orb:nth-child(2) {
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.08) 0%, rgba(239, 68, 68, 0.02) 70%, transparent 100%);
+  bottom: 25%;
+  left: 10%;
+  animation: floatOrb2 16s ease-in-out infinite;
+}
+
+.LoginPage .floating-orb:nth-child(3) {
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.06) 50%, transparent 100%);
+  top: 60%;
+  right: 25%;
+  animation: floatOrb3 10s ease-in-out infinite;
+}
+
+.LoginPage .floating-orb:nth-child(4) {
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.06) 0%, rgba(239, 68, 68, 0.02) 60%, transparent 100%);
+  top: 10%;
+  left: 20%;
+  animation: floatOrb4 14s ease-in-out infinite;
+}
+
+.LoginPage .floating-orb:nth-child(5) {
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.18) 0%, rgba(239, 68, 68, 0.08) 40%, transparent 100%);
+  bottom: 40%;
+  right: 35%;
+  animation: floatOrb5 8s ease-in-out infinite;
+}
+
+@keyframes floatBubble1 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    opacity: 0.7;
+  }
+  25% {
+    transform: translate(100px, -50px) scale(1.1) rotate(90deg);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(200px, 0) scale(0.9) rotate(180deg);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translate(100px, 50px) scale(1.2) rotate(270deg);
+    opacity: 0.6;
+  }
+}
+
+@keyframes floatBubble2 {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    opacity: 0.6;
+  }
+  33% {
+    transform: translate(-80px, -60px) scale(1.15) rotate(120deg);
+    opacity: 0.4;
+  }
+  66% {
+    transform: translate(-150px, 30px) scale(0.85) rotate(240deg);
+    opacity: 0.7;
+  }
+}
+
+@keyframes floatOrb1 {
+  0%,
+  100% {
+    transform: translateY(0px) translateX(0px) rotate(0deg);
+    opacity: 0.8;
+  }
+  25% {
+    transform: translateY(-20px) translateX(15px) rotate(90deg);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(10px) translateX(-10px) rotate(180deg);
+    opacity: 0.9;
+  }
+  75% {
+    transform: translateY(-15px) translateX(-20px) rotate(270deg);
+    opacity: 0.5;
+  }
+}
+
+@keyframes floatOrb2 {
+  0%,
+  100% {
+    transform: translateY(0px) translateX(0px) scale(1);
+    opacity: 0.7;
+  }
+  33% {
+    transform: translateY(25px) translateX(-15px) scale(1.1);
+    opacity: 0.5;
+  }
+  66% {
+    transform: translateY(-10px) translateX(20px) scale(0.9);
+    opacity: 0.8;
+  }
+}
+
+@keyframes floatOrb3 {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translateY(-30px) rotate(180deg);
+    opacity: 0.4;
+  }
+}
+
+@keyframes floatOrb4 {
+  0%,
+  100% {
+    transform: translate(0px, 0px) scale(1);
+    opacity: 0.6;
+  }
+  25% {
+    transform: translate(20px, -15px) scale(1.2);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translate(-15px, 10px) scale(0.8);
+    opacity: 0.8;
+  }
+  75% {
+    transform: translate(10px, 20px) scale(1.1);
+    opacity: 0.5;
+  }
+}
+
+@keyframes floatOrb5 {
+  0%,
+  100% {
+    transform: translateY(0px) scale(1) rotate(0deg);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(-25px) scale(1.3) rotate(180deg);
+    opacity: 0.3;
+  }
+}
+
+.LoginPage .left {
+  background-color: white;
+  padding: var(--spacing-8);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--secondary-200);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  position: relative;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+  animation: slideInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: center bottom;
+}
+
+@keyframes slideInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(60px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Glassmorphism effect */
+.LoginPage .left::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border-radius: var(--radius-2xl);
+  z-index: -1;
+}
+
+.LoginPage .logo {
+  width: 120px;
+  height: auto;
+  margin-bottom: var(--spacing-4);
+  animation: logoFloat 3s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+}
+
+@keyframes logoFloat {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(2deg);
+  }
+}
+
+.LoginPage .header {
+  margin-bottom: var(--spacing-6);
+  animation: fadeInScale 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
+  text-align: center;
+}
+
+@keyframes fadeInScale {
+  0% {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.LoginPage .header h1 {
+  font-size: var(--font-size-3xl);
+  font-weight: 800;
+  color: var(--primary-600);
+  margin: 0 0 var(--spacing-2) 0;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  position: relative;
+  background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 3s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.LoginPage .header h1::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--primary-500), var(--primary-700));
+  background-size: 200% 200%;
+  z-index: -1;
+  opacity: 0.1;
+  border-radius: var(--radius-lg);
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.LoginPage .header p {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--secondary-600);
+  margin: 0;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  position: relative;
+  padding: var(--spacing-2) var(--spacing-4);
+  background: linear-gradient(135deg, var(--secondary-100), var(--secondary-50));
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--secondary-200);
+  display: inline-block;
+  animation: subtitlePulse 4s ease-in-out infinite;
+}
+
+@keyframes subtitlePulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.LoginPage .header p::after {
+  content: "";
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 30px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--primary-400), var(--primary-600));
+  border-radius: 1px;
+  animation: underlineExpand 2s ease-in-out infinite;
+}
+
+@keyframes underlineExpand {
+  0%,
+  100% {
+    width: 30px;
+    opacity: 0.8;
+  }
+  50% {
+    width: 50px;
+    opacity: 1;
+  }
+}
+
+.LoginPage h2 {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--secondary-900);
+  margin-bottom: var(--spacing-6);
+  text-align: center;
+  letter-spacing: 0.5px;
+  position: relative;
+  animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+
+@keyframes fadeInDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animated underline effect */
+.LoginPage h2::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
+  border-radius: 2px;
+  animation: expandWidth 1s ease-out 0.8s both;
+}
+
+@keyframes expandWidth {
+  0% {
+    width: 0;
+  }
+  100% {
+    width: 60px;
+  }
+}
+
+.LoginPage form {
+  text-align: left;
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.LoginPage .form-group {
+  margin-bottom: var(--spacing-5);
+  position: relative;
+}
+
+.LoginPage .form-group:nth-child(1) {
+  animation: slideInLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+}
+
+.LoginPage .form-group:nth-child(2) {
+  animation: slideInLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both;
+}
+
+@keyframes slideInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.LoginPage .form-group label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--secondary-700);
+  margin-bottom: var(--spacing-2);
+}
+
+.LoginPage .input-custom {
+  width: 100%;
+  padding: var(--spacing-4);
+  border: 2px solid var(--secondary-200);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-base);
+  background-color: var(--secondary-50);
+  color: var(--secondary-900);
+  transition: var(--transition-all);
+  position: relative;
+  overflow: hidden;
+}
+
+.LoginPage .input-custom::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.LoginPage .input-custom:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  background-color: white;
+  transform: translateY(-2px);
+}
+
+.LoginPage .input-custom:focus::before {
+  left: 100%;
+}
+
+.LoginPage .input-custom:hover {
+  border-color: var(--secondary-300);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.LoginPage .input-custom::placeholder {
+  color: var(--secondary-400);
+}
+
+.LoginPage .password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.LoginPage .password-wrapper .input-custom {
+  padding-right: var(--spacing-12);
+}
+
+.LoginPage .toggle-password {
+  position: absolute;
+  right: var(--spacing-3);
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--spacing-2);
+  color: var(--secondary-500);
+  transition: var(--transition-all);
+  border-radius: var(--radius-md);
+}
+
+.LoginPage .toggle-password:hover {
+  color: var(--primary-600);
+  background-color: var(--primary-50);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.LoginPage .toggle-password:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+/* Eye icon blink animation */
+.LoginPage .toggle-password i {
+  animation: blink 3s infinite;
+}
+
+@keyframes blink {
+  0%,
+  90%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
+}
+
+.LoginPage .forgot-password {
+  text-align: right;
+  margin-bottom: var(--spacing-4);
+  animation: slideInRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.7s both;
+}
+
+@keyframes slideInRight {
+  0% {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.LoginPage .forgot-password a {
+  font-size: var(--font-size-xs);
+  color: var(--primary-600);
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--transition-all);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.LoginPage .forgot-password a::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--primary-600);
+  transition: width 0.3s ease;
+}
+
+.LoginPage .forgot-password a:hover {
+  color: var(--primary-700);
+  transform: translateX(-2px);
+}
+
+.LoginPage .forgot-password a:hover::before {
+  width: 100%;
+}
+
+.LoginPage .error-message {
+  background-color: var(--error-50);
+  color: var(--error-700);
+  padding: var(--spacing-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--error-500);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-4);
+  text-align: center;
+  animation: shakeError 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  transform-origin: center;
+}
+
+@keyframes shakeError {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-5px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(5px);
+  }
+}
+
+.LoginPage .login-btn {
+  width: 100%;
+  padding: var(--spacing-4) var(--spacing-6);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: var(--radius-lg);
+  transition: var(--transition-all);
+  position: relative;
+  overflow: hidden;
+  animation: slideInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.8s both;
+}
+
+/* Liquid button effect */
+.LoginPage .login-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.6s;
+}
+
+.LoginPage .login-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
+}
+
+.LoginPage .login-btn:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.LoginPage .login-btn:active:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(239, 68, 68, 0.2);
+}
+
+.LoginPage .login-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+  animation: loadingPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes loadingPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
+  }
+}
+
+.LoginPage .login-btn i {
+  margin-right: var(--spacing-2);
+  transition: transform 0.3s ease;
+}
+
+.LoginPage .login-btn:hover:not(:disabled) i {
+  transform: translateX(3px);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .LoginPage {
+    padding: var(--spacing-2);
+  }
+
+  .LoginPage .left {
+    padding: var(--spacing-6);
+    max-width: none;
+  }
+
+  .LoginPage .logo {
+    width: 100px;
+  }
+
+  .LoginPage .header h1 {
+    font-size: var(--font-size-2xl);
+  }
+
+  .LoginPage .header p {
+    font-size: var(--font-size-xs);
+    letter-spacing: 1px;
+    padding: var(--spacing-1) var(--spacing-3);
+  }
+
+  .LoginPage h2 {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-4);
+  }
+}
+
+@media (max-width: 320px) {
+  .LoginPage .left {
+    padding: var(--spacing-4);
+  }
+
+  .LoginPage .input-custom {
+    padding: var(--spacing-3);
+    font-size: var(--font-size-sm);
+  }
+
+  .LoginPage .header h1 {
+    font-size: var(--font-size-xl);
+  }
+
+  .LoginPage .header p {
+    font-size: var(--font-size-xs);
+    letter-spacing: 0.5px;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  .LoginPage {
+    background: linear-gradient(135deg, var(--secondary-100) 0%, var(--secondary-50) 100%);
+  }
+
+  /* Dark mode floating orbs */
+  .LoginPage::before {
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0.08) 40%, transparent 70%);
+  }
+
+  .LoginPage::after {
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.12) 0%, rgba(239, 68, 68, 0.06) 50%, transparent 80%);
+  }
+
+  .LoginPage .floating-orb:nth-child(1) {
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.18) 0%, rgba(239, 68, 68, 0.08) 60%, transparent 100%);
+  }
+
+  .LoginPage .floating-orb:nth-child(2) {
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.14) 0%, rgba(239, 68, 68, 0.05) 70%, transparent 100%);
+  }
+
+  .LoginPage .floating-orb:nth-child(3) {
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0.1) 50%, transparent 100%);
+  }
+
+  .LoginPage .floating-orb:nth-child(4) {
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.04) 60%, transparent 100%);
+  }
+
+  .LoginPage .floating-orb:nth-child(5) {
+    background: radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, rgba(239, 68, 68, 0.12) 40%, transparent 100%);
+  }
+
+  .LoginPage .left {
+    background-color: var(--secondary-100);
+    border-color: var(--secondary-300);
+  }
+
+  .LoginPage .input-custom {
+    background-color: var(--secondary-50);
+    border-color: var(--secondary-300);
+    color: var(--secondary-900);
+  }
+
+  .LoginPage .input-custom:focus {
+    background-color: var(--secondary-100);
+    border-color: var(--primary-500);
+  }
+
+  .LoginPage .input-custom:hover {
+    border-color: var(--secondary-400);
+  }
+
+  .LoginPage .header h1 {
+    background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .LoginPage .header p {
+    background: linear-gradient(135deg, var(--secondary-200), var(--secondary-100));
+    border-color: var(--secondary-300);
+    color: var(--secondary-700);
+  }
+}
+
+/* Custom focus styles for better accessibility */
+.LoginPage .input-custom:focus-visible,
+.LoginPage .toggle-password:focus-visible,
+.LoginPage .forgot-password a:focus-visible,
+.LoginPage .login-btn:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
+/* Loading state animation */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Particle animation for success state */
+.LoginPage.success {
+  animation: successGlow 0.8s ease-out;
+}
+
+@keyframes successGlow {
+  0% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.1);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
+/* Modern typing indicator */
+.LoginPage .typing-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.LoginPage .typing-indicator span {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: var(--primary-500);
+  animation: typingBounce 1.4s infinite ease-in-out both;
+}
+
+.LoginPage .typing-indicator span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.LoginPage .typing-indicator span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes typingBounce {
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Ripple effect for button click */
+.LoginPage .ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  transform: scale(0);
+  animation: rippleAnimation 0.6s linear;
+  pointer-events: none;
+}
+
+@keyframes rippleAnimation {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}

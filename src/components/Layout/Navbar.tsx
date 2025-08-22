@@ -1,6 +1,8 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import "./Navbar.css";
+import { useAuth } from "@/auth/hooks/useAuth";
+import LogoutButton from "@/auth/components/LogoutButton/LogoutButton";
 
 const navigation = [
   { name: "Dashboard", href: "/", icon: "🏠" },
@@ -12,6 +14,7 @@ const navigation = [
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
 
   return (
     <nav className="navbar">
@@ -44,6 +47,17 @@ export const Navbar: React.FC = () => {
               <span className="action-text">Configuración</span>
             </button>
           </div> */}
+
+          {isAuthenticated && (
+            <>
+              {/* <div className="nav-actions">
+                <GoogleProfileChip />
+              </div> */}
+              <div className="nav-actions">
+                <LogoutButton />
+              </div>
+            </>
+          )}
         </div>
       </div>
     </nav>
