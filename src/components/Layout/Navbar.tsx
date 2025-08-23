@@ -14,7 +14,7 @@ const navigation = [
 
 export const Navbar: React.FC = () => {
   const location = useLocation();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, hasRole, userState } = useAuth();
 
   return (
     <nav className="navbar">
@@ -27,19 +27,21 @@ export const Navbar: React.FC = () => {
         </div>
 
         <div className="navbar-nav">
-          <div className="nav-links">
-            {navigation.map((item) => {
-              const isActive =
-                location.pathname === item.href || (item.href !== "/" && location.pathname.startsWith(item.href));
+          {hasRole("admin") && (
+            <div className="nav-links">
+              {navigation.map((item) => {
+                const isActive =
+                  location.pathname === item.href || (item.href !== "/" && location.pathname.startsWith(item.href));
 
-              return (
-                <Link key={item.name} to={item.href} className={`nav-link ${isActive ? "active" : ""}`}>
-                  <span className="nav-icon">{item.icon}</span>
-                  <span className="nav-text">{item.name}</span>
-                </Link>
-              );
-            })}
-          </div>
+                return (
+                  <Link key={item.name} to={item.href} className={`nav-link ${isActive ? "active" : ""}`}>
+                    <span className="nav-icon">{item.icon}</span>
+                    <span className="nav-text">{item.name}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
 
           {/* <div className="nav-actions">
             <button className="btn btn-secondary btn-sm">
@@ -50,9 +52,13 @@ export const Navbar: React.FC = () => {
 
           {isAuthenticated && (
             <>
-              {/* <div className="nav-actions">
-                <GoogleProfileChip />
-              </div> */}
+              <div className="nav-actions">
+                <Link to={`/userDetails/${userState?._id}`}>
+                  <button type="button" className="btn btn-secondary ">
+                    Mi Cuenta
+                  </button>
+                </Link>
+              </div>
               <div className="nav-actions">
                 <LogoutButton />
               </div>

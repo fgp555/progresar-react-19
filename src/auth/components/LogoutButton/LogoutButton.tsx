@@ -6,7 +6,7 @@ const LogoutButton: React.FC = () => {
 
   return (
     <button type="button" className="btn btn-primary" onClick={logout}>
-      Logout
+      Cerrar Sesión
     </button>
   );
 };

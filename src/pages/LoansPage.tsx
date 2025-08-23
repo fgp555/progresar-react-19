@@ -6,6 +6,7 @@ import { useParams } from "react-router-dom";
 import { useLoans } from "../hooks/useLoans";
 import type { CalculateLoanDto, CreateLoanDto, PayInstallmentDto } from "../types";
 import "./LoansPage.css";
+import { useAuth } from "@/auth/hooks/useAuth";
 
 const LoansPage: React.FC = () => {
   const { accountId } = useParams<{ accountId: string }>();
@@ -88,7 +89,7 @@ const LoansPage: React.FC = () => {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("es-PE", {
       style: "currency",
-      currency: "COL$",
+      currency: "COL",
     }).format(amount);
   };
 
@@ -112,6 +113,8 @@ const LoansPage: React.FC = () => {
     const remainingInstallments = loan.numeroCuotas - paidInstallments;
     return remainingInstallments * loan.montoCuota;
   };
+
+  const { hasRole } = useAuth();
 
   return (
     <div className="page-content">
@@ -140,45 +143,48 @@ const LoansPage: React.FC = () => {
                 <button className="btn btn-primary" onClick={() => setShowCalculateModal(true)} disabled={loading}>
                   {loading ? <span className="loading">Calculando...</span> : "Calcular Préstamo"}
                 </button>
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => setShowRequestModal(true)}
-                  disabled={loading || !accountId}
-                >
-                  Solicitar Préstamo
-                </button>
+                {hasRole("admin") && (
+                  <button
+                    className="btn btn-secondary"
+                    onClick={() => setShowRequestModal(true)}
+                    disabled={loading || !accountId}
+                  >
+                    Solicitar Préstamo
+                  </button>
+                )}
               </div>
             </div>
           </CardBody>
         </Card>
-
-        <Card>
-          <CardHeader title="Pagar Cuotas" subtitle="Gestión de pagos de préstamos" />
-          <CardBody>
-            <div style={{ textAlign: "center", padding: "var(--spacing-6)" }}>
-              <div style={{ fontSize: "3rem", marginBottom: "var(--spacing-4)" }}>💳</div>
-              <p style={{ color: "var(--secondary-600)", marginBottom: "var(--spacing-4)" }}>
-                Realiza pagos de cuotas de tus préstamos activos
-              </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-2)" }}>
-                <button
-                  className="btn btn-success"
-                  disabled={loans.filter((loan) => loan.estado.toLowerCase() === "activo").length === 0}
-                  onClick={() => {
-                    const activeLoan = loans.find((loan) => loan.estado.toLowerCase() === "activo");
-                    if (activeLoan) {
-                      setSelectedLoanId(activeLoan.id);
-                      setShowPaymentModal(true);
-                    }
-                  }}
-                >
-                  Pagar Cuota
-                </button>
-                <button className="btn btn-secondary">Ver Cronograma</button>
+        {hasRole("admin") && (
+          <Card>
+            <CardHeader title="Pagar Cuotas" subtitle="Gestión de pagos de préstamos" />
+            <CardBody>
+              <div style={{ textAlign: "center", padding: "var(--spacing-6)" }}>
+                <div style={{ fontSize: "3rem", marginBottom: "var(--spacing-4)" }}>💳</div>
+                <p style={{ color: "var(--secondary-600)", marginBottom: "var(--spacing-4)" }}>
+                  Realiza pagos de cuotas de tus préstamos activos
+                </p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-2)" }}>
+                  <button
+                    className="btn btn-success"
+                    disabled={loans.filter((loan) => loan.estado.toLowerCase() === "activo").length === 0}
+                    onClick={() => {
+                      const activeLoan = loans.find((loan) => loan.estado.toLowerCase() === "activo");
+                      if (activeLoan) {
+                        setSelectedLoanId(activeLoan.id);
+                        setShowPaymentModal(true);
+                      }
+                    }}
+                  >
+                    Pagar Cuota
+                  </button>
+                  {/* <button className="btn btn-secondary">Ver Cronograma</button> */}
+                </div>
               </div>
-            </div>
-          </CardBody>
-        </Card>
+            </CardBody>
+          </Card>
+        )}
       </div>
 
       <Card>

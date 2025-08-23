@@ -16,8 +16,8 @@ export const apiBaseURL = baseUrl + "/api";
 
 export let TURNSTILE_CLIENT_KEY = "0x4AAAAAABbUSOZWSWvcDOez";
 export let isDevelopment = isLocalhost || window.location.hostname === "back.fgp.one";
-export let adminEmail = isLocalhost ? "systered@gmail.com" : "";
-export let adminPassword = isLocalhost ? "systered@gmail.com" : "";
+export let adminEmail = isLocalhost ? "soporte@systered.com" : "";
+export let adminPassword = isLocalhost ? "" : "";
 export let iconUserUrl = "https://i.postimg.cc/GmddyvS1/icon-user.webp";
 export let playStoreUrl = "https://play.google.com/store/apps/details?id=com.fgp555.transpaservic";
 

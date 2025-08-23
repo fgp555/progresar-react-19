@@ -19,14 +19,15 @@ const LoginPage = () => {
   const searchParams = new URLSearchParams(location.search);
   const redirectURL = searchParams.get("redirectURL") || "/dashboard";
 
-  const { isAdmin, isAuthenticated, handleLogin } = useAuth();
+  const { isAdmin, isAuthenticated, handleLogin, userState } = useAuth();
 
   useEffect(() => {
+    console.log("userState?._id", userState?._id);
     if (isAuthenticated) {
       if (isAdmin) {
         navigate(redirectURL);
       } else {
-        navigate("/dashboard");
+        navigate(`/userDetails/${userState?._id}`);
       }
     }
   }, [isAuthenticated, navigate, redirectURL]);

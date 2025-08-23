@@ -1,4 +1,4 @@
-// src/lib/axiosInstance.ts
+// src\config\axiosInstance.ts
 
 import { baseUrl } from "./constants";
 import { logout, setAccessToken } from "@/auth/features/authSlice";

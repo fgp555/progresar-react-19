@@ -3,6 +3,7 @@ import { UserList, UserForm } from "../components/Users";
 import { Card, CardHeader, CardBody, Alert } from "../components/UI";
 import { useUsers } from "../hooks/useUsers";
 import type { User, CreateUserDto } from "../types";
+import { useNavigate } from "react-router-dom";
 
 const UsersPage: React.FC = () => {
   const { users, loading, error, createUser, deleteUser } = useUsers();
@@ -28,9 +29,11 @@ const UsersPage: React.FC = () => {
       setTimeout(() => setNotification(null), 5000);
     }
   };
+  const navigate = useNavigate(); // 👈 hook de navegación
 
   const handleEditUser = (user: User) => {
     setEditingUser(user);
+    navigate(`/users/edit/${user._id}`);
     // TODO: Implement edit modal
   };
 
@@ -51,11 +54,6 @@ const UsersPage: React.FC = () => {
         setTimeout(() => setNotification(null), 5000);
       }
     }
-  };
-
-  const handleViewAccounts = (userId: string) => {
-    // TODO: Navigate to accounts page filtered by user
-    console.log("View accounts for user:", userId);
   };
 
   if (error) {
@@ -93,7 +91,6 @@ const UsersPage: React.FC = () => {
         users={users}
         loading={loading}
         onCreateUser={() => setShowCreateForm(true)}
-        onViewAccounts={handleViewAccounts}
         onEditUser={handleEditUser}
         onDeleteUser={handleDeleteUser}
       />

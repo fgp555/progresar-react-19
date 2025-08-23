@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import { AccountForm } from "../components/Accounts/AccountForm";
 import { Card, CardHeader, CardBody, Alert, Button } from "../components/UI";
 import { useAccounts } from "../hooks/useAccounts";
 import { useUsers } from "../hooks/useUsers";
-import { AccountForm } from "../components/Accounts/AccountForm";
+import AccountCard from "@/components/AccountCard/AccountCard";
+import React, { useState, useEffect } from "react";
 import type { CreateAccountDto } from "../types";
-import { Link } from "react-router-dom";
+import { formatBalance } from "@/utils/formatBalance";
 
 const AccountsPage: React.FC = () => {
   const { accounts, loading: accountsLoading, fetchAllAccounts, createAccount } = useAccounts();
@@ -13,16 +14,6 @@ const AccountsPage: React.FC = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedUser, setSelectedUser] = useState<string>("");
   const [notification, setNotification] = useState<{ type: "success" | "error"; message: string } | null>(null);
-
-  const [isActive, setIsActive] = useState(true);
-  // const isActive = true;
-
-  const handleToggle = (account: any) => {
-    const newState = !isActive;
-    setIsActive(newState);
-    console.log("account", account);
-    // onToggle(account.id, newState); // Llamada al backend para actualizar
-  };
 
   useEffect(() => {
     fetchAllAccounts();
@@ -55,43 +46,6 @@ const AccountsPage: React.FC = () => {
       setTimeout(() => setNotification(null), 5000);
     }
   };
-
-  const formatBalance = (balance: number) => {
-    return new Intl.NumberFormat("es-PE", {
-      style: "currency",
-      currency: "COL",
-    }).format(balance);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("es-PE", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const getAccountTypeIcon = (type: string) => {
-    switch (type) {
-      case "ahorro":
-        return "💰";
-      case "corriente":
-        return "🏦";
-      case "plazo fijo":
-        return "📈";
-      default:
-        return "💳";
-    }
-  };
-
-  // const getAccountTypeBadge = (type: string) => {
-  //   const className = type.replace(" ", "-");
-  //   return (
-  //     <span className={`type-badge ${className}`}>
-  //       {getAccountTypeIcon(type)} {type.charAt(0).toUpperCase() + type.slice(1)}
-  //     </span>
-  //   );
-  // };
 
   const loading = accountsLoading || usersLoading;
 
@@ -168,7 +122,7 @@ const AccountsPage: React.FC = () => {
       <div className="account-list">
         <div className="list-header">
           <div className="header-content">
-            <h1 className="header-title">Cuentas Bancarias</h1>
+            <h1 className="header-title">Cuentas</h1>
             <p className="header-subtitle">Gestión de cuentas de PROGRESAR</p>
           </div>
           <div className="header-actions">
@@ -240,62 +194,11 @@ const AccountsPage: React.FC = () => {
         ) : (
           <div className="grid grid-3">
             {accounts.map((account) => (
-              <Card key={account.id} className="account-card">
-                <CardBody>
-                  <div className="account-header">
-                    <div className="account-type">
-                      {getAccountTypeIcon(account.tipoCuenta)} {account.tipoCuenta}
-                    </div>
-                    <div className={`account-status ${account.estado}`}>
-                      {account.estado}{" "}
-                      <Button variant="secondary" size="sm" onClick={() => handleToggle(account.id)}>
-                        {isActive ? (
-                          <i className="fa-solid fa-toggle-on" style={{ color: "green" }}></i>
-                        ) : (
-                          <i className="fa-solid fa-toggle-off" style={{ color: "red" }}></i>
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="account-number">{account.numeroCuenta}</div>
-
-                  <div className="account-balance">
-                    <div className="balance-label">Saldo Disponible</div>
-                    <div className="balance-amount">{formatBalance(Number(account.saldo))}</div>
-                    {/* <div className="balance-currency">{account.moneda}</div> */}
-                  </div>
-
-                  <div className="account-meta">
-                    <div className="meta-item">
-                      <div className="meta-label">Propietario</div>
-                      <div className="meta-value">
-                        {account.user?.name + " " + account.user?.lastName || "No disponible"}
-                      </div>
-                    </div>
-                    <div className="meta-item">
-                      <div className="meta-label">Fecha Creación</div>
-                      <div className="meta-value">{formatDate(account.fechaCreacion)}</div>
-                    </div>
-                  </div>
-
-                  <div className="account-actions">
-                    <Link to={`/transactions/${account.id}`}>
-                      <Button variant="primary" size="sm">
-                        💸 Transacciones
-                      </Button>
-                    </Link>
-                    <Link to={`/loans/${account.id}`}>
-                      <Button variant="secondary" size="sm">
-                        🏦 Préstamos
-                      </Button>
-                    </Link>
-                    <Button variant="secondary" size="sm">
-                      <i className="fa-solid fa-pen"></i>
-                    </Button>
-                  </div>
-                </CardBody>
-              </Card>
+              <AccountCard
+                key={account.id}
+                account={account}
+                //
+              />
             ))}
           </div>
         )}

@@ -90,7 +90,7 @@ const DashboardPage: React.FC = () => {
             <div className="stat-icon">💳</div>
           </div>
           <div className="stat-value">{userAccounts.length}</div>
-          <div className="stat-change neutral">Cuentas bancarias activas</div>
+          <div className="stat-change neutral">Cuentas activas</div>
         </div>
 
         <div className="stat-card">
@@ -171,7 +171,7 @@ const DashboardPage: React.FC = () => {
                 <span style={{ fontSize: "var(--font-size-xl)" }}>💳</span>
                 <div>
                   <div style={{ fontWeight: "500" }}>Gestionar Cuentas</div>
-                  <div style={{ fontSize: "var(--font-size-sm)", opacity: 0.7 }}>Administrar cuentas bancarias</div>
+                  <div style={{ fontSize: "var(--font-size-sm)", opacity: 0.7 }}>Administrar cuentas</div>
                 </div>
               </a>
             </div>

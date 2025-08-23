@@ -1,13 +1,15 @@
+// src\components\Users\UserList.tsx
+
 import React from "react";
 import { Table, TableHeader, TableBody, TableRow, TableHeaderCell, TableCell, Button } from "../UI";
 import type { User } from "../../types";
 import "./UserForm.css";
+import { useNavigate } from "react-router-dom";
 
 interface UserListProps {
   users: User[];
   loading: boolean;
   onCreateUser: () => void;
-  onViewAccounts: (userId: string) => void;
   onEditUser: (user: User) => void;
   onDeleteUser: (userId: string) => void;
 }
@@ -16,10 +18,11 @@ export const UserList: React.FC<UserListProps> = ({
   users,
   loading,
   onCreateUser,
-  onViewAccounts,
   onEditUser,
   onDeleteUser,
 }) => {
+  const navigate = useNavigate(); // 👈 hook de navegación
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("es-PE", {
       year: "numeric",
@@ -105,7 +108,11 @@ export const UserList: React.FC<UserListProps> = ({
         </TableHeader>
         <TableBody>
           {users.map((user) => (
-            <TableRow key={user._id} className="user-row">
+            <TableRow
+              key={user._id}
+              className="user-row"
+              onClick={() => navigate(`/userDetails/${user._id}`)} // 👈 redirección al detalle
+            >
               <TableCell className="user-cell user-name-cell">
                 <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-3)" }}>
                   <div
@@ -152,13 +159,27 @@ export const UserList: React.FC<UserListProps> = ({
               <TableCell className="user-cell user-date-cell">{formatDate(user.createdAt)}</TableCell>
               <TableCell className="user-cell user-actions-cell">
                 <div className="action-buttons">
-                  <Button variant="secondary" size="sm" onClick={() => onViewAccounts(user._id)} title="Ver cuentas">
-                    💳
-                  </Button>
-                  <Button variant="secondary" size="sm" onClick={() => onEditUser(user)} title="Editar usuario">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation(); // ❌ evita que dispare el onClick de la fila
+                      onEditUser(user);
+                    }}
+                    title="Editar usuario"
+                  >
                     ✏️
                   </Button>
-                  <Button variant="error" size="sm" onClick={() => onDeleteUser(user._id)} title="Eliminar usuario">
+
+                  <Button
+                    variant="error"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation(); // ❌ evita navegación
+                      onDeleteUser(user._id);
+                    }}
+                    title="Eliminar usuario"
+                  >
                     🗑️
                   </Button>
                 </div>

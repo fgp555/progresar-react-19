@@ -85,7 +85,7 @@ export const AccountList: React.FC<AccountListProps> = ({
     <div className="account-list">
       <div className="list-header">
         <div className="header-content">
-          <h1 className="header-title">Cuentas Bancarias</h1>
+          <h1 className="header-title">Cuentas</h1>
           <p className="header-subtitle">PROGRESAR</p>
         </div>
         <div className="header-actions">

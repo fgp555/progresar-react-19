@@ -11,6 +11,8 @@ import type { Notification } from "./types";
 import UsersPage from "./pages/UsersPage";
 import PasswordForgot from "./auth/pages/PasswordForgot/PasswordForgot";
 import PasswordRestore from "./auth/pages/PasswordRestore/PasswordRestore";
+import UserDetailsPage from "./pages/UserDetailsPage";
+import UserEditPage from "./pages/UserEdit";
 
 function App() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -42,6 +44,8 @@ function App() {
         <Route element={<AdminLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/users" element={<UsersPage />} />
+          <Route path="/users/edit/:userId" element={<UserEditPage />} />
+          <Route path="/userDetails/:userId" element={<UserDetailsPage />} />
           <Route path="/accounts" element={<AccountsPage />} />
           <Route path="/transactions/:accountId" element={<TransactionsPage />} />
           <Route path="/loans/:accountId" element={<LoansPage />} />
