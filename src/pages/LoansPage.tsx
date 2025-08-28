@@ -18,6 +18,7 @@ const LoansPage: React.FC = () => {
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null);
+  const [selectedLoanForDetails, setSelectedLoanForDetails] = useState<string | null>(null);
 
   // Form states
   const [calculateForm, setCalculateForm] = useState<CalculateLoanDto>({
@@ -93,6 +94,15 @@ const LoansPage: React.FC = () => {
     }).format(amount);
   };
 
+  // Format date
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("es-PE", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
   // Get loan status color
   const getLoanStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -102,6 +112,21 @@ const LoansPage: React.FC = () => {
         return "var(--secondary-500)";
       case "cancelado":
         return "var(--error-500)";
+      default:
+        return "var(--secondary-500)";
+    }
+  };
+
+  // Get installment status color
+  const getInstallmentStatusColor = (status: string, dueDate: string) => {
+    const today = new Date();
+    const due = new Date(dueDate);
+
+    switch (status.toLowerCase()) {
+      case "pagada":
+        return "var(--success-500)";
+      case "pendiente":
+        return due < today ? "var(--error-500)" : "var(--warning-500)";
       default:
         return "var(--secondary-500)";
     }
@@ -179,7 +204,6 @@ const LoansPage: React.FC = () => {
                   >
                     Pagar Cuota
                   </button>
-                  {/* <button className="btn btn-secondary">Ver Cronograma</button> */}
                 </div>
               </div>
             </CardBody>
@@ -255,18 +279,28 @@ const LoansPage: React.FC = () => {
                         </span>
                       </td>
                       <td>
-                        {loan.estado.toLowerCase() === "activo" && loan.cuotasPagadas < loan.numeroCuotas && (
+                        <div style={{ display: "flex", gap: "var(--spacing-2)" }}>
                           <button
-                            className="btn btn-sm btn-success"
-                            onClick={() => {
-                              setSelectedLoanId(loan.id);
-                              setPaymentForm({ numeroCuotas: 1 });
-                              setShowPaymentModal(true);
-                            }}
+                            className="btn btn-sm btn-outline"
+                            onClick={() =>
+                              setSelectedLoanForDetails(loan.id === selectedLoanForDetails ? null : loan.id)
+                            }
                           >
-                            Pagar
+                            {loan.id === selectedLoanForDetails ? "Ocultar" : "Ver Cuotas"}
                           </button>
-                        )}
+                          {loan.estado.toLowerCase() === "activo" && loan.cuotasPagadas < loan.numeroCuotas && (
+                            <button
+                              className="btn btn-sm btn-success"
+                              onClick={() => {
+                                setSelectedLoanId(loan.id);
+                                setPaymentForm({ numeroCuotas: 1 });
+                                setShowPaymentModal(true);
+                              }}
+                            >
+                              Pagar
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -276,6 +310,135 @@ const LoansPage: React.FC = () => {
           )}
         </CardBody>
       </Card>
+
+      {/* Installments Details */}
+      {selectedLoanForDetails && (
+        <Card>
+          <CardHeader
+            title="Cronograma de Cuotas"
+            subtitle={`Préstamo ${selectedLoanForDetails.slice(-8)} - Detalle de pagos`}
+          />
+          <CardBody>
+            {(() => {
+              const loan = loans.find((l) => l.id === selectedLoanForDetails);
+              if (!loan || !loan.cuotas) return null;
+
+              // Sort installments by installment number
+              const sortedInstallments = [...loan.cuotas].sort((a, b) => a.numeroCuota - b.numeroCuota);
+
+              return (
+                <div className="table-container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Cuota #</th>
+                        <th>Monto</th>
+                        <th>Fecha Vencimiento</th>
+                        <th>Fecha Pago</th>
+                        <th>Estado</th>
+                        <th>Días</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {sortedInstallments.map((installment) => {
+                        const dueDate = new Date(installment.fechaVencimiento);
+                        const today = new Date();
+                        const daysUntilDue = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                        const isOverdue = installment.estado === "pendiente" && daysUntilDue < 0;
+
+                        return (
+                          <tr key={installment.id}>
+                            <td style={{ fontWeight: "600" }}>{installment.numeroCuota}</td>
+                            <td>{formatCurrency(Number(installment.monto))}</td>
+                            <td>{formatDate(installment.fechaVencimiento)}</td>
+                            <td>{installment.fechaPago ? formatDate(installment.fechaPago) : "-"}</td>
+                            <td>
+                              <span
+                                style={{
+                                  color: getInstallmentStatusColor(installment.estado, installment.fechaVencimiento),
+                                  fontWeight: "600",
+                                  fontSize: "var(--font-size-xs)",
+                                  textTransform: "uppercase",
+                                }}
+                              >
+                                {installment.estado === "pendiente" && isOverdue ? "VENCIDA" : installment.estado}
+                              </span>
+                            </td>
+                            <td>
+                              {installment.estado === "pendiente" && (
+                                <span
+                                  style={{
+                                    color:
+                                      daysUntilDue < 0
+                                        ? "var(--error-500)"
+                                        : daysUntilDue <= 7
+                                        ? "var(--warning-500)"
+                                        : "var(--secondary-600)",
+                                    fontSize: "var(--font-size-sm)",
+                                  }}
+                                >
+                                  {daysUntilDue < 0
+                                    ? `${Math.abs(daysUntilDue)} días vencida`
+                                    : daysUntilDue === 0
+                                    ? "Vence hoy"
+                                    : `${daysUntilDue} días restantes`}
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+
+                  {/* Summary */}
+                  <div
+                    style={{
+                      marginTop: "var(--spacing-4)",
+                      padding: "var(--spacing-4)",
+                      backgroundColor: "var(--secondary-50)",
+                      borderRadius: "var(--border-radius-md)",
+                      display: "grid",
+                      gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+                      gap: "var(--spacing-4)",
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontWeight: "600", color: "var(--secondary-700)" }}>Resumen del Préstamo</div>
+                      <div style={{ marginTop: "var(--spacing-2)" }}>
+                        <p>
+                          <strong>Fecha de solicitud:</strong> {formatDate(loan.fechaCreacion)}
+                        </p>
+                        <p>
+                          <strong>Fecha de vencimiento:</strong> {formatDate(loan.fechaVencimiento!)}
+                        </p>
+                        <p>
+                          <strong>Descripción:</strong> {loan.descripcion}
+                        </p>
+                      </div>
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: "600", color: "var(--secondary-700)" }}>Información Financiera</div>
+                      <div style={{ marginTop: "var(--spacing-2)" }}>
+                        <p>
+                          <strong>Monto total:</strong> {formatCurrency(Number(loan.montoTotal))}
+                        </p>
+                        <p>
+                          <strong>Intereses totales:</strong> {formatCurrency(Number(loan.interesTotal))}
+                        </p>
+                        <p>
+                          <strong>Ratio capacidad de pago:</strong> {(Number(loan.ratioCapacidadPago) * 100).toFixed(1)}
+                          %
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+          </CardBody>
+        </Card>
+      )}
 
       {/* Calculate Loan Modal */}
       {showCalculateModal && (

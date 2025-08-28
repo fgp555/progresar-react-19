@@ -1,6 +1,6 @@
 import "./LoginPage.css";
 import { adminEmail, adminPassword } from "@/config/constants";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/auth/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { useTheme } from "@/layout/hooks/useTheme";
@@ -14,10 +14,8 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  const location = useLocation();
 
-  const searchParams = new URLSearchParams(location.search);
-  const redirectURL = searchParams.get("redirectURL") || "/dashboard";
+  const redirectURL = "/dashboard";
 
   const { isAdmin, isAuthenticated, handleLogin, userState } = useAuth();
 

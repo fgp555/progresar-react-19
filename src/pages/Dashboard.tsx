@@ -14,7 +14,7 @@ interface DashboardStats {
 }
 
 const DashboardPage: React.FC = () => {
-  const [stats, setStats] = useState<DashboardStats>({
+  const [_, setStats] = useState<DashboardStats>({
     usuarios: 0,
     cuentas: 0,
     transacciones: 0,
@@ -93,7 +93,7 @@ const DashboardPage: React.FC = () => {
           <div className="stat-change neutral">Cuentas activas</div>
         </div>
 
-        <div className="stat-card">
+        {/* <div className="stat-card">
           <div className="stat-header">
             <div className="stat-title">Transacciones</div>
             <div className="stat-icon">💸</div>
@@ -109,7 +109,7 @@ const DashboardPage: React.FC = () => {
           </div>
           <div className="stat-value">{stats.prestamos}</div>
           <div className="stat-change positive">{stats.prestamosActivos} activos</div>
-        </div>
+        </div> */}
       </div>
 
       <div className="grid grid-2">
