@@ -288,18 +288,20 @@ const LoansPage: React.FC = () => {
                           >
                             {loan.id === selectedLoanForDetails ? "Ocultar" : "Ver Cuotas"}
                           </button>
-                          {loan.estado.toLowerCase() === "activo" && loan.cuotasPagadas < loan.numeroCuotas && (
-                            <button
-                              className="btn btn-sm btn-success"
-                              onClick={() => {
-                                setSelectedLoanId(loan.id);
-                                setPaymentForm({ numeroCuotas: 1 });
-                                setShowPaymentModal(true);
-                              }}
-                            >
-                              Pagar
-                            </button>
-                          )}
+                          {hasRole("admin") &&
+                            loan.estado.toLowerCase() === "activo" &&
+                            loan.cuotasPagadas < loan.numeroCuotas && (
+                              <button
+                                className="btn btn-sm btn-success"
+                                onClick={() => {
+                                  setSelectedLoanId(loan.id);
+                                  setPaymentForm({ numeroCuotas: 1 });
+                                  setShowPaymentModal(true);
+                                }}
+                              >
+                                Pagar
+                              </button>
+                            )}
                         </div>
                       </td>
                     </tr>

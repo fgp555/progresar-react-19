@@ -25,9 +25,12 @@ class ApiService {
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     const url = `${this.baseURL}${endpoint}`;
 
+    const token = localStorage.getItem("accessToken");
+
     const config: RequestInit = {
       headers: {
         "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}), // 🔑 Solo si hay token
         ...options.headers,
       },
       ...options,

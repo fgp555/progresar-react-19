@@ -1,0 +1,81 @@
+/* src/components/TransaccionesHistorial.css */
+
+/* Estilos generales del historial */
+ul.divide-y {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Cada transacción */
+ul.divide-y li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--secondary-200);
+  transition: background 0.2s ease-in-out;
+}
+
+ul.divide-y li:hover {
+  background: var(--secondary-50);
+}
+
+/* Contenedor de la info de texto (tipo + desc + fecha) */
+ul.divide-y li .transaction-info {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Texto de descripción */
+ul.divide-y li .transaction-info span.description {
+  font-size: 0.95rem;
+  color: var(--secondary-700);
+  font-weight: 500;
+}
+
+/* Fecha debajo */
+ul.divide-y li .transaction-info span.date {
+  font-size: 0.8rem;
+  color: var(--secondary-500);
+  margin-top: 2px;
+}
+
+/* Monto en negrita */
+ul.divide-y li span.amount {
+  font-weight: 600;
+  color: var(--secondary-900);
+}
+
+/* Montos positivos y negativos */
+ul.divide-y li span.amount-positive {
+  color: var(--success-500);
+}
+
+ul.divide-y li span.amount-negative {
+  color: var(--error-500);
+}
+
+/* Botones de paginación */
+button.btn {
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+button.btn-secondary {
+  background: var(--secondary-100);
+  border: 1px solid var(--secondary-300);
+  color: var(--secondary-700);
+}
+
+button.btn-secondary:hover:not(:disabled) {
+  background: var(--secondary-200);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

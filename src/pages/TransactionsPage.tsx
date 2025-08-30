@@ -1,5 +1,5 @@
 // src/pages/TransactionsPage.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Card, CardHeader, CardBody } from "../components/UI";
 import { useTransactions } from "../hooks/useTransactions";
 import { TransactionModal } from "../components/Transactions/TransactionModal";
@@ -8,20 +8,15 @@ import TransaccionesHistorial from "@/components/TransaccionesHistorial/Transacc
 import { useAuth } from "@/auth/hooks/useAuth";
 
 const TransactionsPage: React.FC = () => {
-  const { fetchAccountTransactions, deposit, withdraw, transfer } = useTransactions();
+  const { deposit, withdraw, transfer } = useTransactions();
   const [modalType, setModalType] = useState<null | "deposit" | "withdraw" | "transfer">(null);
 
   const { accountId: paramAccountId } = useParams<{ accountId: string }>();
 
-  const accountId = paramAccountId ?? "419fd57d-a062-41cb-b4a3-f0515b6d2085";
+  const accountId = paramAccountId;
   if (!accountId) {
     return <div>Error: No account ID provided.</div>;
   }
-
-  // cargar transacciones al montar
-  useEffect(() => {
-    fetchAccountTransactions(accountId, 1, 10);
-  }, [accountId, fetchAccountTransactions]);
 
   const handleSubmit = async (formData: any) => {
     try {
