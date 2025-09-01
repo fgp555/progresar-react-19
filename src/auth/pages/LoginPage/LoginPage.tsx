@@ -15,7 +15,7 @@ const LoginPage = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const redirectURL = "/dashboard";
+  const redirectURL = "/users";
 
   const { isAdmin, isAuthenticated, handleLogin, userState } = useAuth();
 

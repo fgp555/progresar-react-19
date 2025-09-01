@@ -14,22 +14,11 @@ import UserDetailsPage from "./pages/UserDetailsPage";
 import UserEditPage from "./pages/UserEdit";
 import UserCreate from "./pages/UserCreate";
 import UsersList from "./pages/UsersList";
+import AccountCreatePage from "./pages/AccountCreatePage";
+import AccountUpdatePage from "./pages/AccountUpdatePage";
 
 function App() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-
-  // const addNotification = (notification: Omit<Notification, 'id'>) => {
-  //   const id = Math.random().toString(36).substr(2, 9);
-  //   const newNotification = { ...notification, id };
-
-  //   setNotifications(prev => [...prev, newNotification]);
-
-  //   // Auto remove notification after duration
-  //   const duration = notification.duration || 5000;
-  //   setTimeout(() => {
-  //     removeNotification(id);
-  //   }, duration);
-  // };
 
   const removeNotification = (id: string) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
@@ -45,10 +34,12 @@ function App() {
         <Route element={<AdminLayout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/users" element={<UsersList />} />
-          <Route path="/users/create/:userId" element={<UserCreate />} />
+          <Route path="/users/create" element={<UserCreate />} />
           <Route path="/users/edit/:userId" element={<UserEditPage />} />
           <Route path="/userDetails/:userId" element={<UserDetailsPage />} />
           <Route path="/accounts" element={<AccountsPage />} />
+          <Route path="/accounts/create/:userId" element={<AccountCreatePage />} />
+          <Route path="/accounts/edit/:userId" element={<AccountUpdatePage />} />
           <Route path="/transactions/:accountId" element={<TransactionsPage />} />
           <Route path="/loans/:accountId" element={<LoansPage />} />
         </Route>
