@@ -4,6 +4,7 @@ import { apiService } from "../services/api";
 import "../components/Layout/Layout.css";
 import { useAccounts } from "../hooks/useAccounts";
 import { useUsers } from "../hooks/useUsers";
+import DatabaseManagement from "./DatabaseManagement";
 
 interface DashboardStats {
   usuarios: number;
@@ -245,6 +246,7 @@ const DashboardPage: React.FC = () => {
           </CardBody>
         </Card>
       </div>
+      <DatabaseManagement />
     </div>
   );
 };

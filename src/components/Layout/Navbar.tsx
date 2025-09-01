@@ -5,8 +5,8 @@ import { useAuth } from "@/auth/hooks/useAuth";
 import LogoutButton from "@/auth/components/LogoutButton/LogoutButton";
 
 const navigation = [
-  { name: "Dashboard", href: "/", icon: "🏠" },
-  { name: "Cuentas", href: "/accounts", icon: "💳" },
+  { name: "Dashboard", href: "/dashboard", icon: "🏠" },
+  // { name: "Cuentas", href: "/accounts", icon: "💳" },
   { name: "Usuarios", href: "/users", icon: "👥" },
   // { name: 'Transacciones', href: '/transactions', icon: '💸' },
   // { name: 'Préstamos', href: '/loans', icon: '🏦' },

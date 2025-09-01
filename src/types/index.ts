@@ -95,7 +95,7 @@ export const AccountType = {
 export type AccountType = (typeof AccountType)[keyof typeof AccountType];
 
 export const Currency = {
-  COL: "COL",
+  COP: "COP",
 } as const;
 
 export type Currency = (typeof Currency)[keyof typeof Currency];

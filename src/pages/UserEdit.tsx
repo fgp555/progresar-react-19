@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import axiosInstance from "@/config/axiosInstance";
 import Swal from "sweetalert2";
-import "./UserEdit.css";
+import styles from "./UserEdit.module.css";
 import type { User } from "@/types";
 import { useDocumentTypes } from "@/hooks/useDocumentTypes";
 import { useDocumentValidation } from "@/hooks/useDocumentValidation";
+import { useDeleteUser } from "@/hooks/useDeleteUser";
 
 interface UserUpdateData {
   username: string;
@@ -23,6 +24,22 @@ interface UserUpdateData {
 const UserEditPage = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
+
+  const { deleteUser } = useDeleteUser();
+
+  const handleDelete = async (id: string) => {
+    const input = window.prompt('Para eliminar este usuario escribe la palabra "eliminar":');
+
+    if (input?.toLowerCase() === "eliminar") {
+      const result = await deleteUser(id);
+      if (result?.success) {
+        alert(result.message);
+        navigate("/users"); // 👈 redirección después de eliminar
+      }
+    } else if (input !== null) {
+      alert("Debes escribir exactamente 'eliminar' para confirmar.");
+    }
+  };
 
   // Custom hooks
   const {
@@ -278,7 +295,7 @@ const UserEditPage = () => {
   // Loading state
   if (loading || typesLoading) {
     return (
-      <div className="user-edit-loading">
+      <div className={styles.loading}>
         <p>Cargando información del usuario...</p>
         {typesLoading && <p>Cargando tipos de documento...</p>}
       </div>
@@ -288,9 +305,9 @@ const UserEditPage = () => {
   // Error state
   if (error && !user) {
     return (
-      <div className="user-edit-error">
+      <div className={styles.error}>
         <p>{error}</p>
-        <Link to="/dashboard/users" className="btn btn-secondary" style={{ marginTop: "1rem" }}>
+        <Link to="/dashboard/users" className={`${styles.btn} ${styles.btnSecondary}`} style={{ marginTop: "1rem" }}>
           Volver a Usuarios
         </Link>
       </div>
@@ -299,9 +316,9 @@ const UserEditPage = () => {
 
   if (!user) {
     return (
-      <div className="user-edit-error">
+      <div className={styles.error}>
         <p>No se encontró el usuario</p>
-        <Link to="/dashboard/users" className="btn btn-secondary" style={{ marginTop: "1rem" }}>
+        <Link to="/dashboard/users" className={`${styles.btn} ${styles.btnSecondary}`} style={{ marginTop: "1rem" }}>
           Volver a Usuarios
         </Link>
       </div>
@@ -309,35 +326,39 @@ const UserEditPage = () => {
   }
 
   return (
-    <div className="user-edit">
-      <div className="user-edit-header">
-        <h2>Editar Usuario</h2>
-        <Link to={`/userDetails/${userId}`} className="user-edit-back-btn">
+    <div className={styles.userEdit}>
+      <div className={styles.header}>
+        <Link to={`/userDetails/${userId}`} className={styles.backBtn}>
           <i className="fa-solid fa-arrow-left"></i>
           Volver
         </Link>
+        <h2>Editar Usuario</h2>
+        <button className={styles.deleteBtn} onClick={() => handleDelete(userId!)}>
+          <i className="fas fa-trash"></i>
+          Eliminar Usuario
+        </button>
       </div>
 
       {/* Error messages */}
-      {error && <div className="error-message">{error}</div>}
+      {error && <div className={styles.errorMessage}>{error}</div>}
       {typesError && (
-        <div className="error-message">
+        <div className={styles.errorMessage}>
           Error al cargar tipos de documento: {typesError}
           <button onClick={clearTypesError} style={{ marginLeft: "10px" }}>
             ×
           </button>
         </div>
       )}
-      {success && <div className="success-message">{success}</div>}
+      {success && <div className={styles.successMessage}>{success}</div>}
 
-      <form onSubmit={handleSubmit} className="user-edit-form">
-        <div className="user-edit-form-grid">
+      <form onSubmit={handleSubmit} className={styles.form}>
+        <div className={styles.formGrid}>
           {/* Información Personal */}
-          <div className="form-section-header user-edit-form-full">
+          <div className={`${styles.sectionHeader} ${styles.formFull}`}>
             <h3>Información Personal</h3>
           </div>
 
-          <div className="form-group">
+          <div className={styles.formGroup}>
             <label htmlFor="name">Nombre *</label>
             <input
               type="text"
@@ -346,13 +367,13 @@ const UserEditPage = () => {
               value={formData.name}
               onChange={handleInputChange}
               placeholder="Ingresa el nombre"
-              className={validationErrors.name ? "error" : ""}
+              className={validationErrors.name ? styles.inputError : ""}
               required
             />
-            {validationErrors.name && <small className="error-text">{validationErrors.name}</small>}
+            {validationErrors.name && <small className={styles.errorText}>{validationErrors.name}</small>}
           </div>
 
-          <div className="form-group">
+          <div className={styles.formGroup}>
             <label htmlFor="lastName">Apellido *</label>
             <input
               type="text"
@@ -361,13 +382,13 @@ const UserEditPage = () => {
               value={formData.lastName}
               onChange={handleInputChange}
               placeholder="Ingresa el apellido"
-              className={validationErrors.lastName ? "error" : ""}
+              className={validationErrors.lastName ? styles.inputError : ""}
               required
             />
-            {validationErrors.lastName && <small className="error-text">{validationErrors.lastName}</small>}
+            {validationErrors.lastName && <small className={styles.errorText}>{validationErrors.lastName}</small>}
           </div>
 
-          <div className="form-group">
+          <div className={styles.formGroup}>
             <label htmlFor="email">Email *</label>
             <input
               type="email"
@@ -376,13 +397,13 @@ const UserEditPage = () => {
               value={formData.email}
               onChange={handleInputChange}
               placeholder="usuario@ejemplo.com"
-              className={validationErrors.email ? "error" : ""}
+              className={validationErrors.email ? styles.inputError : ""}
               required
             />
-            {validationErrors.email && <small className="error-text">{validationErrors.email}</small>}
+            {validationErrors.email && <small className={styles.errorText}>{validationErrors.email}</small>}
           </div>
 
-          <div className="form-group">
+          <div className={styles.formGroup}>
             <label htmlFor="whatsapp">WhatsApp</label>
             <input
               type="tel"
@@ -395,18 +416,18 @@ const UserEditPage = () => {
           </div>
 
           {/* Documentación */}
-          <div className="form-section-header user-edit-form-full">
+          <div className={`${styles.sectionHeader} ${styles.formFull}`}>
             <h3>Documentación</h3>
           </div>
 
-          <div className="form-group">
+          <div className={styles.formGroup}>
             <label htmlFor="documentType">Tipo de Documento *</label>
             <select
               id="documentType"
               name="documentType"
               value={formData.documentType}
               onChange={handleInputChange}
-              className={validationErrors.documentType ? "error" : ""}
+              className={validationErrors.documentType ? styles.inputError : ""}
               required
             >
               <option value="">Seleccionar tipo de documento</option>
@@ -416,17 +437,15 @@ const UserEditPage = () => {
                 </option>
               ))}
             </select>
-            {validationErrors.documentType && <small className="error-text">{validationErrors.documentType}</small>}
+            {validationErrors.documentType && (
+              <small className={styles.errorText}>{validationErrors.documentType}</small>
+            )}
             {currentDocumentType && (
-              <small
-                style={{ color: "var(--secondary-600)", fontSize: "0.875rem", display: "block", marginTop: "4px" }}
-              >
-                Tipo seleccionado: {currentDocumentType.name}
-              </small>
+              <small className={styles.helpText}>Tipo seleccionado: {currentDocumentType.name}</small>
             )}
           </div>
 
-          <div className="form-group">
+          <div className={styles.formGroup}>
             <label htmlFor="documentNumber">Número de Documento *</label>
             <input
               type="text"
@@ -435,18 +454,20 @@ const UserEditPage = () => {
               value={formData.documentNumber}
               onChange={handleInputChange}
               placeholder="Número de documento"
-              className={validationErrors.documentNumber ? "error" : ""}
+              className={validationErrors.documentNumber ? styles.inputError : ""}
               required
             />
-            {validationErrors.documentNumber && <small className="error-text">{validationErrors.documentNumber}</small>}
+            {validationErrors.documentNumber && (
+              <small className={styles.errorText}>{validationErrors.documentNumber}</small>
+            )}
           </div>
 
           {/* Configuración de Cuenta */}
-          <div className="form-section-header user-edit-form-full">
+          <div className={`${styles.sectionHeader} ${styles.formFull}`}>
             <h3>Configuración de Cuenta</h3>
           </div>
 
-          <div className="form-group">
+          <div className={styles.formGroup}>
             <label htmlFor="username">Nombre de Usuario *</label>
             <input
               type="text"
@@ -455,13 +476,13 @@ const UserEditPage = () => {
               value={formData.username}
               onChange={handleInputChange}
               placeholder="nombreusuario"
-              className={validationErrors.username ? "error" : ""}
+              className={validationErrors.username ? styles.inputError : ""}
               required
             />
-            {validationErrors.username && <small className="error-text">{validationErrors.username}</small>}
+            {validationErrors.username && <small className={styles.errorText}>{validationErrors.username}</small>}
           </div>
 
-          <div className="form-group">
+          <div className={styles.formGroup}>
             <label htmlFor="role">Rol</label>
             <select id="role" name="role" value={formData.role} onChange={handleInputChange}>
               <option value="user">👤 Usuario</option>
@@ -470,7 +491,7 @@ const UserEditPage = () => {
             </select>
           </div>
 
-          <div className="form-group">
+          <div className={styles.formGroup}>
             <label htmlFor="cupos">Cupos Disponibles *</label>
             <input
               type="number"
@@ -483,14 +504,14 @@ const UserEditPage = () => {
               placeholder="1"
               required
             />
-            <small style={{ color: "var(--secondary-500)", fontSize: "0.875rem" }}>
+            <small className={styles.helpText}>
               Cantidad de cupos que puede utilizar el usuario (mínimo 1, máximo 10)
             </small>
           </div>
 
-          <div className="form-group user-edit-form-full">
+          <div className={`${styles.formGroup} ${styles.formFull}`}>
             <label>Estado de la Cuenta</label>
-            <div className="user-edit-toggle">
+            <div className={styles.toggle}>
               <input
                 type="checkbox"
                 id="isActive"
@@ -498,20 +519,25 @@ const UserEditPage = () => {
                 checked={formData.isActive}
                 onChange={handleInputChange}
               />
-              <span className="user-edit-toggle-label">
+              <span className={styles.toggleLabel}>
                 {formData.isActive ? "✅ Cuenta Activa" : "❌ Cuenta Inactiva"}
               </span>
             </div>
           </div>
         </div>
 
-        <div className="user-edit-actions">
-          <button type="button" className="btn btn-secondary" onClick={handleCancel} disabled={saving}>
+        <div className={styles.actions}>
+          <button
+            type="button"
+            className={`${styles.btn} ${styles.btnSecondary}`}
+            onClick={handleCancel}
+            disabled={saving}
+          >
             <i className="fa-solid fa-rotate-left"></i>
             Restablecer
           </button>
 
-          <button type="submit" className="btn btn-primary" disabled={saving}>
+          <button type="submit" className={`${styles.btn} ${styles.btnPrimary}`} disabled={saving}>
             <i className="fa-solid fa-save"></i>
             {saving ? "Guardando..." : "Guardar Cambios"}
           </button>
@@ -519,35 +545,35 @@ const UserEditPage = () => {
       </form>
 
       {/* User metadata info */}
-      <div className="user-edit-metadata">
-        <div className="user-edit-metadata-item">
+      <div className={styles.metadata}>
+        <div className={styles.metadataItem}>
           <strong>ID:</strong>
-          <span className="user-edit-id">{user._id}</span>
+          <span className={styles.userId}>{user._id}</span>
         </div>
-        <div className="user-edit-metadata-item">
+        <div className={styles.metadataItem}>
           <strong>Tipo de Documento:</strong>
           <span>
             {user.documentType?.name || "No especificado"} ({user.documentType?.code || "N/A"})
           </span>
         </div>
-        <div className="user-edit-metadata-item">
+        <div className={styles.metadataItem}>
           <strong>Número de Documento:</strong>
           <span>{user.documentNumber || "No especificado"}</span>
         </div>
-        <div className="user-edit-metadata-item">
+        <div className={styles.metadataItem}>
           <strong>Cupos Asignados:</strong>
           <span>{user.cupos}</span>
         </div>
-        <div className="user-edit-metadata-item">
+        <div className={styles.metadataItem}>
           <strong>Fecha de Creación:</strong>
           <span>{new Date(user.createdAt).toLocaleString("es-ES")}</span>
         </div>
-        <div className="user-edit-metadata-item">
+        <div className={styles.metadataItem}>
           <strong>Última Actualización:</strong>
           <span>{new Date(user.updatedAt).toLocaleString("es-ES")}</span>
         </div>
       </div>
-      <pre>{JSON.stringify(formData, null, 2)}</pre>
+      {/* <pre>{JSON.stringify(formData, null, 2)}</pre> */}
     </div>
   );
 };

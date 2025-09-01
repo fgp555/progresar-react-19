@@ -1,686 +1,780 @@
-// src\pages\LoansPage.tsx
-
 import React, { useState, useEffect } from "react";
-import { Card, CardHeader, CardBody } from "../components/UI";
-import { useParams } from "react-router-dom";
-import { useLoans } from "../hooks/useLoans";
-import type { CalculateLoanDto, CreateLoanDto, PayInstallmentDto } from "../types";
-import "./LoansPage.css";
-import { useAuth } from "@/auth/hooks/useAuth";
+import { useParams, Link } from "react-router-dom";
+import axiosInstance from "@/config/axiosInstance";
+import styles from "./LoansPage.module.css";
+
+interface LoanInstallment {
+  id: string;
+  numeroCuota: number;
+  monto: string;
+  fechaVencimiento: string;
+  fechaPago?: string | null;
+  estado: "PENDIENTE" | "PAGADA" | "VENCIDA";
+}
+
+interface Account {
+  id: string;
+  usuarioId: string;
+  numeroCuenta: string;
+  tipoCuenta: string;
+  saldo: string;
+  moneda: string;
+  fechaCreacion: string;
+  estado: string;
+}
+
+interface Loan {
+  id: string;
+  cuentaId: string;
+  montoPrincipal: string;
+  numeroCuotas: number;
+  montoCuota: string;
+  montoTotal: string;
+  interesTotal: string;
+  cuotasPagadas: number;
+  fechaVencimiento: string;
+  fechaCompletado?: string | null;
+  estado: "ACTIVO" | "COMPLETADO" | "VENCIDO";
+  descripcion: string;
+  scoreAprobacion: number;
+  ratioCapacidadPago: string;
+  fechaCreacion: string;
+  cuotas: LoanInstallment[];
+}
+
+interface CreateLoanForm {
+  monto: string;
+  numeroCuotas: number;
+  descripcion: string;
+  fechaCreacion: string;
+}
+
+interface PayInstallmentForm {
+  numeroCuotas: number;
+  fechaPago: string;
+}
+
+interface LoanCalculation {
+  montoPrincipal: number;
+  numeroCuotas: number;
+  montoCuota: number;
+  montoTotal: number;
+  interesTotal: number;
+  tasaInteres: string;
+}
 
 const LoansPage: React.FC = () => {
   const { accountId } = useParams<{ accountId: string }>();
-  const { loans, loading, error, calculation, fetchAccountLoans, calculateLoan, requestLoan, payInstallment } =
-    useLoans();
 
-  // State for modals and forms
-  const [showCalculateModal, setShowCalculateModal] = useState(false);
-  const [showRequestModal, setShowRequestModal] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null);
-  const [selectedLoanForDetails, setSelectedLoanForDetails] = useState<string | null>(null);
+  const [loans, setLoans] = useState<Loan[]>([]);
+  const [account, setAccount] = useState<Account | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+  const [activeTab, setActiveTab] = useState<"loans" | "request" | "calculate">("loans");
+  const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
+  const [showPayModal, setShowPayModal] = useState<boolean>(false);
 
-  // Form states
-  const [calculateForm, setCalculateForm] = useState<CalculateLoanDto>({
-    monto: 0,
-    numeroCuotas: 6,
-  });
-
-  const [requestForm, setRequestForm] = useState<CreateLoanDto>({
-    monto: 0,
-    numeroCuotas: 6,
-    descripcion: "",
-  });
-
-  const [paymentForm, setPaymentForm] = useState<PayInstallmentDto>({
+  const [createLoanForm, setCreateLoanForm] = useState<CreateLoanForm>({
+    monto: "",
     numeroCuotas: 1,
+    descripcion: "",
+    fechaCreacion: new Date().toISOString().split("T")[0],
   });
 
-  // Load loans on component mount
-  useEffect(() => {
-    if (accountId) {
-      fetchAccountLoans(accountId);
-    }
-  }, [accountId, fetchAccountLoans]);
+  const [payForm, setPayForm] = useState<PayInstallmentForm>({
+    numeroCuotas: 1,
+    fechaPago: new Date().toISOString().split("T")[0],
+  });
 
-  // Handle loan calculation
-  const handleCalculateLoan = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const [calculation, setCalculation] = useState<LoanCalculation | null>(null);
+  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
+
+  // Fetch loans and account info
+  useEffect(() => {
+    if (!accountId) {
+      setError("ID de cuenta no proporcionado");
+      setLoading(false);
+      return;
+    }
+
+    const fetchData = async () => {
+      try {
+        // Fetch loans
+        const loansResponse: any = await axiosInstance.get(`/api/progresar/prestamos/account/${accountId}`);
+
+        if (loansResponse.data.success) {
+          setLoans(loansResponse.data.data);
+        }
+
+        // Try to get account info directly first
+        try {
+          const accountResponse: any = await axiosInstance.get(`/api/progresar/cuentas/${accountId}`);
+          if (accountResponse.data.success) {
+            setAccount(accountResponse.data.data);
+          }
+        } catch (accountErr) {
+          // If direct account fetch fails, we'll work without account info for now
+          console.warn("Could not fetch account details:", accountErr);
+        }
+
+        setError("");
+      } catch (err: any) {
+        const errorMessage = err?.response?.data?.message || "Error al cargar los datos";
+        setError(errorMessage);
+        console.error("Error fetching data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [accountId]);
+
+  const validateCreateForm = (): boolean => {
+    const errors: { [key: string]: string } = {};
+
+    if (!createLoanForm.monto || createLoanForm.monto.toString().trim() === "") {
+      errors.monto = "El monto es requerido";
+    } else {
+      const amount = parseFloat(createLoanForm.monto.toString());
+      if (isNaN(amount) || amount <= 0) {
+        errors.monto = "El monto debe ser un número positivo";
+      } else if (account) {
+        // Validar que el monto no exceda el doble del saldo
+        const maxAmount = parseFloat(account.saldo) * 2;
+        if (amount > maxAmount) {
+          errors.monto = `El monto máximo permitido es ${formatCurrency(maxAmount.toString())} (2x su saldo actual)`;
+        }
+      }
+    }
+
+    // if (createLoanForm.numeroCuotas < 1 || createLoanForm.numeroCuotas > 6) {
+    //   errors.numeroCuotas = "El número de cuotas debe ser entre 1 y 6";
+    // }
+
+    // if (!createLoanForm.descripcion.trim()) {
+    //   errors.descripcion = "La descripción es requerida";
+    // }
+
+    if (!createLoanForm.fechaCreacion) {
+      errors.fechaCreacion = "La fecha de creación es requerida";
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const validatePayForm = (): boolean => {
+    const errors: { [key: string]: string } = {};
+
+    // if (payForm.numeroCuotas < 1 || payForm.numeroCuotas > 6) {
+    //   errors.numeroCuotas = "El número de cuotas debe ser entre 1 y 6";
+    // }
+
+    if (!payForm.fechaPago) {
+      errors.fechaPago = "La fecha de pago es requerida";
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleCreateFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+
+    // Clear validation error for this field
+    if (validationErrors[name]) {
+      setValidationErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+
+    if (type === "number") {
+      const numValue = parseInt(value) || 1;
+      setCreateLoanForm((prev) => ({ ...prev, [name]: numValue }));
+    } else {
+      setCreateLoanForm((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const handlePayFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+
+    // Clear validation error for this field
+    if (validationErrors[name]) {
+      setValidationErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+
+    if (type === "number") {
+      const numValue = parseInt(value) || 1;
+      setPayForm((prev) => ({ ...prev, [name]: numValue }));
+    } else {
+      setPayForm((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+
+  const calculateLoan = async () => {
+    if (!createLoanForm.monto || createLoanForm.numeroCuotas < 1 || createLoanForm.numeroCuotas > 6) {
+      setError("Por favor ingresa un monto válido y número de cuotas entre 1 y 6");
+      return;
+    }
+
     try {
-      await calculateLoan(calculateForm);
-    } catch (err) {
+      const response: any = await axiosInstance.post("/api/progresar/prestamos/calculate", {
+        monto: parseFloat(createLoanForm.monto.toString()),
+        numeroCuotas: createLoanForm.numeroCuotas,
+      });
+
+      if (response.data.success) {
+        setCalculation(response.data.data);
+        setError("");
+      }
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.message || "Error al calcular el préstamo";
+      setError(errorMessage);
       console.error("Error calculating loan:", err);
     }
   };
 
-  // Handle loan request
-  const handleRequestLoan = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!accountId) return;
+  const createLoan = async () => {
+    if (!validateCreateForm() || !accountId) {
+      setError("Por favor corrige los errores en el formulario");
+      return;
+    }
+
+    setSubmitting(true);
+    setError("");
 
     try {
-      await requestLoan(accountId, requestForm);
-      setShowRequestModal(false);
-      setRequestForm({
-        monto: 0,
-        numeroCuotas: 6,
-        descripcion: "",
-      });
-    } catch (err) {
-      console.error("Error requesting loan:", err);
+      const payload = {
+        monto: parseFloat(createLoanForm.monto),
+        numeroCuotas: createLoanForm.numeroCuotas,
+        descripcion: createLoanForm.descripcion,
+        fechaCreacion: createLoanForm.fechaCreacion,
+      };
+
+      const response: any = await axiosInstance.post(`/api/progresar/prestamos/account/${accountId}`, payload);
+
+      if (response.data.success) {
+        // Reset form
+        setCreateLoanForm({
+          monto: "",
+          numeroCuotas: 1,
+          descripcion: "",
+          fechaCreacion: new Date().toISOString().split("T")[0],
+        });
+        setCalculation(null);
+
+        // Refresh loans
+        const loansResponse: any = await axiosInstance.get(`/api/progresar/prestamos/account/${accountId}`);
+        if (loansResponse.data.success) {
+          setLoans(loansResponse.data.data);
+        }
+
+        // Switch to loans tab
+        setActiveTab("loans");
+      }
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.message || "Error al crear el préstamo";
+      setError(errorMessage);
+      console.error("Error creating loan:", err);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  // Handle installment payment
-  const handlePayInstallment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedLoanId) return;
+  const payInstallment = async () => {
+    if (!validatePayForm() || !selectedLoan) {
+      setError("Por favor corrige los errores en el formulario");
+      return;
+    }
+
+    setSubmitting(true);
+    setError("");
 
     try {
-      await payInstallment(selectedLoanId, paymentForm);
-      setShowPaymentModal(false);
-      setPaymentForm({ numeroCuotas: 1 });
-      setSelectedLoanId(null);
-    } catch (err) {
+      const payload = {
+        numeroCuotas: payForm.numeroCuotas,
+        fechaPago: payForm.fechaPago,
+      };
+
+      const response: any = await axiosInstance.post(`/api/progresar/prestamos/pay/${selectedLoan.id}`, payload);
+
+      if (response.data.success) {
+        // Reset form and close modal
+        setPayForm({
+          numeroCuotas: 1,
+          fechaPago: new Date().toISOString().split("T")[0],
+        });
+        setShowPayModal(false);
+        setSelectedLoan(null);
+
+        // Refresh loans
+        const loansResponse: any = await axiosInstance.get(`/api/progresar/prestamos/account/${accountId}`);
+        if (loansResponse.data.success) {
+          setLoans(loansResponse.data.data);
+        }
+      }
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.message || "Error al pagar la cuota";
+      setError(errorMessage);
       console.error("Error paying installment:", err);
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  // Format currency
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("es-PE", {
-      style: "currency",
-      currency: "COL",
-    }).format(amount);
+  const openPayModal = (loan: Loan) => {
+    setSelectedLoan(loan);
+    const pendingInstallments = loan.cuotas.filter((c) => c.estado === "PENDIENTE").length;
+    setPayForm({
+      numeroCuotas: Math.min(1, pendingInstallments),
+      fechaPago: new Date().toISOString().split("T")[0],
+    });
+    setShowPayModal(true);
   };
 
-  // Format date
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("es-PE", {
+  const formatCurrency = (amount: string): string => {
+    const number = parseFloat(amount);
+    return new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency: "COP",
+    }).format(number);
+  };
+
+  const formatDate = (dateString: string): string => {
+    return new Date(dateString).toLocaleDateString("es-CO", {
       year: "numeric",
       month: "short",
       day: "numeric",
     });
   };
 
-  // Get loan status color
-  const getLoanStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "activo":
-        return "var(--success-500)";
-      case "completado":
-        return "var(--secondary-500)";
-      case "cancelado":
-        return "var(--error-500)";
+  const getStatusColor = (status: string): string => {
+    switch (status) {
+      case "ACTIVO":
+        return styles.active;
+      case "COMPLETADO":
+        return styles.completed;
+      case "VENCIDO":
+        return styles.overdue;
+      case "PENDIENTE":
+        return styles.pending;
+      case "PAGADA":
+        return styles.paid;
       default:
-        return "var(--secondary-500)";
+        return "";
     }
   };
 
-  // Get installment status color
-  const getInstallmentStatusColor = (status: string, dueDate: string) => {
-    const today = new Date();
-    const due = new Date(dueDate);
-
-    switch (status.toLowerCase()) {
-      case "pagada":
-        return "var(--success-500)";
-      case "pendiente":
-        return due < today ? "var(--error-500)" : "var(--warning-500)";
-      default:
-        return "var(--secondary-500)";
-    }
+  const getProgressPercentage = (loan: Loan): number => {
+    return (loan.cuotasPagadas / loan.numeroCuotas) * 100;
   };
 
-  // Calculate remaining balance
-  const getRemainingBalance = (loan: any) => {
-    const paidInstallments = loan.cuotasPagadas || 0;
-    const remainingInstallments = loan.numeroCuotas - paidInstallments;
-    return remainingInstallments * loan.montoCuota;
-  };
-
-  const { hasRole } = useAuth();
+  if (loading) {
+    return (
+      <div className={styles.loading}>
+        <p>Cargando préstamos...</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="page-content">
-      <div className="page-header">
-        <h1 className="page-title">Préstamos</h1>
-        <p className="page-subtitle">Sistema de préstamos con evaluación crediticia</p>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Gestión de Préstamos</h1>
+        <Link to="/accounts" className={styles.backBtn}>
+          <i className="fas fa-arrow-left"></i>
+          Volver a Cuentas
+        </Link>
       </div>
 
       {error && (
-        <div className="alert alert-error">
-          <div className="alert-title">Error</div>
-          <div className="alert-message">{error}</div>
+        <div className={styles.errorMessage}>
+          <i className="fas fa-exclamation-triangle"></i>
+          {error}
         </div>
       )}
 
-      <div className="grid grid-2">
-        <Card>
-          <CardHeader title="Solicitar Préstamo" subtitle="Evaluación y aprobación de préstamos" />
-          <CardBody>
-            <div style={{ textAlign: "center", padding: "var(--spacing-6)" }}>
-              <div style={{ fontSize: "3rem", marginBottom: "var(--spacing-4)" }}>🏦</div>
-              <p style={{ color: "var(--secondary-600)", marginBottom: "var(--spacing-4)" }}>
-                Solicita un préstamo personalizado según tus necesidades
-              </p>
-              <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-2)" }}>
-                <button className="btn btn-primary" onClick={() => setShowCalculateModal(true)} disabled={loading}>
-                  {loading ? <span className="loading">Calculando...</span> : "Calcular Préstamo"}
-                </button>
-                {hasRole("admin") && (
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() => setShowRequestModal(true)}
-                    disabled={loading || !accountId}
-                  >
-                    Solicitar Préstamo
-                  </button>
-                )}
+      {/* Account Info */}
+      {account && (
+        <div className={styles.accountInfo}>
+          <div className={styles.accountDetails}>
+            <h3>Cuenta: {account.numeroCuenta}</h3>
+            <p>Saldo actual: {formatCurrency(account.saldo)}</p>
+            <p>Monto máximo préstamo: {formatCurrency((parseFloat(account.saldo) * 2).toString())}</p>
+            <span className={`${styles.accountStatus} ${styles[account.estado]}`}>{account.estado.toUpperCase()}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Navigation Tabs */}
+      <div className={styles.tabs}>
+        <button
+          onClick={() => setActiveTab("loans")}
+          className={`${styles.tab} ${activeTab === "loans" ? styles.activeTab : ""}`}
+        >
+          <i className="fas fa-list"></i>
+          Mis Préstamos
+        </button>
+        <button
+          onClick={() => setActiveTab("calculate")}
+          className={`${styles.tab} ${activeTab === "calculate" ? styles.activeTab : ""}`}
+        >
+          <i className="fas fa-calculator"></i>
+          Calculadora
+        </button>
+        <button
+          onClick={() => setActiveTab("request")}
+          className={`${styles.tab} ${activeTab === "request" ? styles.activeTab : ""}`}
+        >
+          <i className="fas fa-plus-circle"></i>
+          Asignar Préstamo
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      <div className={styles.tabContent}>
+        {/* Loans List Tab */}
+        {activeTab === "loans" && (
+          <div className={styles.loansTab}>
+            {loans.length > 0 ? (
+              <div className={styles.loansList}>
+                {loans.map((loan) => (
+                  <div key={loan.id} className={styles.loanCard}>
+                    <div className={styles.loanHeader}>
+                      <div className={styles.loanInfo}>
+                        <h3 className={styles.loanTitle}>{formatCurrency(loan.montoPrincipal)}</h3>
+                        <span className={`${styles.loanStatus} ${getStatusColor(loan.estado)}`}>{loan.estado}</span>
+                      </div>
+                      <div className={styles.loanProgress}>
+                        <div className={styles.progressBar}>
+                          <div
+                            className={styles.progressFill}
+                            style={{ width: `${getProgressPercentage(loan)}%` }}
+                          ></div>
+                        </div>
+                        <span className={styles.progressText}>
+                          {loan.cuotasPagadas}/{loan.numeroCuotas} cuotas
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className={styles.loanDetails}>
+                      <div className={styles.detailRow}>
+                        <span>Descripción:</span>
+                        <span>{loan.descripcion}</span>
+                      </div>
+                      <div className={styles.detailRow}>
+                        <span>Cuota mensual:</span>
+                        <span>{formatCurrency(loan.montoCuota)}</span>
+                      </div>
+                      <div className={styles.detailRow}>
+                        <span>Total a pagar:</span>
+                        <span>{formatCurrency(loan.montoTotal)}</span>
+                      </div>
+                      <div className={styles.detailRow}>
+                        <span>Interés total:</span>
+                        <span>{formatCurrency(loan.interesTotal)}</span>
+                      </div>
+                      <div className={styles.detailRow}>
+                        <span>Score aprobación:</span>
+                        <span>{loan.scoreAprobacion}/100</span>
+                      </div>
+                      <div className={styles.detailRow}>
+                        <span>Vencimiento:</span>
+                        <span>{formatDate(loan.fechaVencimiento)}</span>
+                      </div>
+                    </div>
+
+                    {loan.estado === "ACTIVO" && (
+                      <div className={styles.loanActions}>
+                        <button onClick={() => openPayModal(loan)} className={styles.payButton}>
+                          <i className="fas fa-credit-card"></i>
+                          Pagar Cuotas
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Installments */}
+                    <div className={styles.installments}>
+                      <h4>Cronograma de Cuotas</h4>
+                      <div className={styles.installmentsList}>
+                        {loan.cuotas.map((installment) => (
+                          <div key={installment.id} className={styles.installmentItem}>
+                            <div className={styles.installmentInfo}>
+                              <span className={styles.installmentNumber}>Cuota {installment.numeroCuota}</span>
+                              <span className={styles.installmentAmount}>{formatCurrency(installment.monto)}</span>
+                            </div>
+                            <div className={styles.installmentMeta}>
+                              <span className={styles.installmentDate}>
+                                Vence: {formatDate(installment.fechaVencimiento)}
+                              </span>
+                              <span className={`${styles.installmentStatus} ${getStatusColor(installment.estado)}`}>
+                                {installment.estado}
+                                {installment.fechaPago && (
+                                  <span className={styles.payDate}> (Pagada: {formatDate(installment.fechaPago)})</span>
+                                )}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            </div>
-          </CardBody>
-        </Card>
-        {hasRole("admin") && (
-          <Card>
-            <CardHeader title="Pagar Cuotas" subtitle="Gestión de pagos de préstamos" />
-            <CardBody>
-              <div style={{ textAlign: "center", padding: "var(--spacing-6)" }}>
-                <div style={{ fontSize: "3rem", marginBottom: "var(--spacing-4)" }}>💳</div>
-                <p style={{ color: "var(--secondary-600)", marginBottom: "var(--spacing-4)" }}>
-                  Realiza pagos de cuotas de tus préstamos activos
-                </p>
-                <div style={{ display: "flex", flexDirection: "column", gap: "var(--spacing-2)" }}>
-                  <button
-                    className="btn btn-success"
-                    disabled={loans.filter((loan) => loan.estado.toLowerCase() === "activo").length === 0}
-                    onClick={() => {
-                      const activeLoan = loans.find((loan) => loan.estado.toLowerCase() === "activo");
-                      if (activeLoan) {
-                        setSelectedLoanId(activeLoan.id);
-                        setShowPaymentModal(true);
-                      }
-                    }}
+            ) : (
+              <div className={styles.noLoans}>
+                <i className="fas fa-hand-holding-usd"></i>
+                <p>No tienes préstamos registrados</p>
+                <button onClick={() => setActiveTab("request")} className={styles.requestLoanBtn}>
+                  Solicitar mi primer préstamo
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Calculate Tab */}
+        {activeTab === "calculate" && (
+          <div className={styles.calculateTab}>
+            <h3>Calculadora de Préstamos</h3>
+            <p>Simula tu préstamo para conocer las cuotas y el total a pagar</p>
+
+            <div className={styles.calculatorForm}>
+              <div className={styles.formGrid}>
+                <div className={styles.formGroup}>
+                  <label>Monto solicitado</label>
+                  <input
+                    type="text"
+                    name="monto"
+                    value={createLoanForm.monto}
+                    onChange={handleCreateFormChange}
+                    placeholder="Ej: 1000000"
+                    className={styles.input}
+                  />
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label>Número de cuotas</label>
+                  <select
+                    name="numeroCuotas"
+                    value={createLoanForm.numeroCuotas}
+                    onChange={handleCreateFormChange}
+                    className={styles.select}
                   >
-                    Pagar Cuota
-                  </button>
+                    {[1, 2, 3, 4, 5, 6].map((num) => (
+                      <option key={num} value={num}>
+                        {num} cuota{num > 1 ? "s" : ""}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
-            </CardBody>
-          </Card>
+
+              <button onClick={calculateLoan} className={styles.calculateButton}>
+                <i className="fas fa-calculator"></i>
+                Calcular Préstamo
+              </button>
+            </div>
+
+            {calculation && (
+              <div className={styles.calculationResult}>
+                <h4>Resultado de la Simulación</h4>
+                <div className={styles.resultGrid}>
+                  <div className={styles.resultItem}>
+                    <span className={styles.resultLabel}>Monto Principal:</span>
+                    <span className={styles.resultValue}>{formatCurrency(calculation.montoPrincipal.toString())}</span>
+                  </div>
+                  <div className={styles.resultItem}>
+                    <span className={styles.resultLabel}>Cuota Mensual:</span>
+                    <span className={styles.resultValue}>{formatCurrency(calculation.montoCuota.toString())}</span>
+                  </div>
+                  <div className={styles.resultItem}>
+                    <span className={styles.resultLabel}>Total a Pagar:</span>
+                    <span className={styles.resultValue}>{formatCurrency(calculation.montoTotal.toString())}</span>
+                  </div>
+                  <div className={styles.resultItem}>
+                    <span className={styles.resultLabel}>Interés Total:</span>
+                    <span className={styles.resultValue}>{formatCurrency(calculation.interesTotal.toString())}</span>
+                  </div>
+                  <div className={styles.resultItem}>
+                    <span className={styles.resultLabel}>Tasa de Interés:</span>
+                    <span className={styles.resultValue}>{calculation.tasaInteres}</span>
+                  </div>
+                  <div className={styles.resultItem}>
+                    <span className={styles.resultLabel}>Número de Cuotas:</span>
+                    <span className={styles.resultValue}>{calculation.numeroCuotas}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Request Loan Tab */}
+        {activeTab === "request" && (
+          <div className={styles.requestTab}>
+            <h3>Asignar Préstamo</h3>
+            <p>Complete los datos para solicitar su préstamo</p>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                createLoan();
+              }}
+              className={styles.loanForm}
+            >
+              <div className={styles.formGrid}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="monto">Monto solicitado *</label>
+                  <input
+                    type="text"
+                    id="monto"
+                    name="monto"
+                    value={createLoanForm.monto}
+                    onChange={handleCreateFormChange}
+                    placeholder="Ej: 1000000"
+                    className={`${styles.input} ${validationErrors.monto ? styles.inputError : ""}`}
+                    required
+                  />
+                  {validationErrors.monto && <span className={styles.errorText}>{validationErrors.monto}</span>}
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="numeroCuotas">Número de cuotas *</label>
+                  <input
+                    type="number"
+                    id="numeroCuotas"
+                    name="numeroCuotas"
+                    value={createLoanForm.numeroCuotas}
+                    onChange={handleCreateFormChange}
+                    className={`${styles.input} ${validationErrors.numeroCuotas ? styles.inputError : ""}`}
+                    required
+                    min={1}
+                    max={120} // 👈 ajusta según tus reglas de negocio
+                    placeholder="Ej: 6"
+                  />
+                  {validationErrors.numeroCuotas && (
+                    <span className={styles.errorText}>{validationErrors.numeroCuotas}</span>
+                  )}
+                </div>
+
+                <div className={styles.formGroup}>
+                  <label htmlFor="fechaCreacion">Fecha de solicitud *</label>
+                  <input
+                    type="date"
+                    id="fechaCreacion"
+                    name="fechaCreacion"
+                    value={createLoanForm.fechaCreacion}
+                    onChange={handleCreateFormChange}
+                    className={`${styles.input} ${validationErrors.fechaCreacion ? styles.inputError : ""}`}
+                    required
+                  />
+                  {validationErrors.fechaCreacion && (
+                    <span className={styles.errorText}>{validationErrors.fechaCreacion}</span>
+                  )}
+                </div>
+
+                <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                  <label htmlFor="descripcion">Descripción del préstamo *</label>
+                  <textarea
+                    id="descripcion"
+                    name="descripcion"
+                    value={createLoanForm.descripcion}
+                    onChange={handleCreateFormChange}
+                    placeholder="Describa el motivo del préstamo..."
+                    className={`${styles.textarea} ${validationErrors.descripcion ? styles.inputError : ""}`}
+                    rows={3}
+                  />
+                  {validationErrors.descripcion && (
+                    <span className={styles.errorText}>{validationErrors.descripcion}</span>
+                  )}
+                </div>
+              </div>
+
+              <button type="submit" className={styles.submitButton} disabled={submitting}>
+                <i className="fas fa-paper-plane"></i>
+                {submitting ? "Procesando solicitud..." : "Asignar Préstamo"}
+              </button>
+            </form>
+          </div>
         )}
       </div>
 
-      <Card>
-        <CardHeader title="Préstamos Activos" subtitle={`${loans.length} préstamos en el sistema`} />
-        <CardBody>
-          {loading ? (
-            <div className="empty-state">
-              <div className="loading">Cargando préstamos...</div>
+      {/* Pay Installment Modal */}
+      {showPayModal && selectedLoan && (
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <div className={styles.modalHeader}>
+              <h3>Pagar Cuotas - Préstamo</h3>
+              <button onClick={() => setShowPayModal(false)} className={styles.modalClose}>
+                <i className="fas fa-times"></i>
+              </button>
             </div>
-          ) : loans.length === 0 ? (
-            <div className="empty-state">
-              <div className="empty-icon">📊</div>
-              <div className="empty-title">No tienes préstamos</div>
-              <div className="empty-description">Solicita tu primer préstamo para comenzar</div>
-            </div>
-          ) : (
-            <div className="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Monto Principal</th>
-                    <th>Cuotas</th>
-                    <th>Cuota Mensual</th>
-                    <th>Estado</th>
-                    <th>Cuotas Pagadas</th>
-                    <th>Saldo Pendiente</th>
-                    <th>Score</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {loans.map((loan) => (
-                    <tr key={loan.id}>
-                      <td style={{ fontFamily: "monospace" }}>{loan.id.slice(-8)}</td>
-                      <td>{formatCurrency(Number(loan.montoPrincipal))}</td>
-                      <td>{loan.numeroCuotas}</td>
-                      <td>{formatCurrency(Number(loan.montoCuota))}</td>
-                      <td>
-                        <span
-                          style={{
-                            color: getLoanStatusColor(loan.estado),
-                            fontWeight: "600",
-                            fontSize: "var(--font-size-xs)",
-                            textTransform: "uppercase",
-                          }}
-                        >
-                          {loan.estado}
-                        </span>
-                      </td>
-                      <td>
-                        {loan.cuotasPagadas} / {loan.numeroCuotas}
-                      </td>
-                      <td>{formatCurrency(getRemainingBalance(loan))}</td>
-                      <td>
-                        <span
-                          style={{
-                            color:
-                              loan.scoreAprobacion >= 70
-                                ? "var(--success-500)"
-                                : loan.scoreAprobacion >= 50
-                                ? "var(--warning-500)"
-                                : "var(--error-500)",
-                            fontWeight: "600",
-                          }}
-                        >
-                          {loan.scoreAprobacion}%
-                        </span>
-                      </td>
-                      <td>
-                        <div style={{ display: "flex", gap: "var(--spacing-2)" }}>
-                          <button
-                            className="btn btn-sm btn-outline"
-                            onClick={() =>
-                              setSelectedLoanForDetails(loan.id === selectedLoanForDetails ? null : loan.id)
-                            }
-                          >
-                            {loan.id === selectedLoanForDetails ? "Ocultar" : "Ver Cuotas"}
-                          </button>
-                          {hasRole("admin") &&
-                            loan.estado.toLowerCase() === "activo" &&
-                            loan.cuotasPagadas < loan.numeroCuotas && (
-                              <button
-                                className="btn btn-sm btn-success"
-                                onClick={() => {
-                                  setSelectedLoanId(loan.id);
-                                  setPaymentForm({ numeroCuotas: 1 });
-                                  setShowPaymentModal(true);
-                                }}
-                              >
-                                Pagar
-                              </button>
-                            )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardBody>
-      </Card>
 
-      {/* Installments Details */}
-      {selectedLoanForDetails && (
-        <Card>
-          <CardHeader
-            title="Cronograma de Cuotas"
-            subtitle={`Préstamo ${selectedLoanForDetails.slice(-8)} - Detalle de pagos`}
-          />
-          <CardBody>
-            {(() => {
-              const loan = loans.find((l) => l.id === selectedLoanForDetails);
-              if (!loan || !loan.cuotas) return null;
+            <div className={styles.modalBody}>
+              <div className={styles.loanSummary}>
+                <p>
+                  <strong>Monto:</strong> {formatCurrency(selectedLoan.montoPrincipal)}
+                </p>
+                <p>
+                  <strong>Cuotas pendientes:</strong> {selectedLoan.numeroCuotas - selectedLoan.cuotasPagadas}
+                </p>
+                <p>
+                  <strong>Cuota mensual:</strong> {formatCurrency(selectedLoan.montoCuota)}
+                </p>
+              </div>
 
-              // Sort installments by installment number
-              const sortedInstallments = [...loan.cuotas].sort((a, b) => a.numeroCuota - b.numeroCuota);
-
-              return (
-                <div className="table-container">
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Cuota #</th>
-                        <th>Monto</th>
-                        <th>Fecha Vencimiento</th>
-                        <th>Fecha Pago</th>
-                        <th>Estado</th>
-                        <th>Días</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sortedInstallments.map((installment) => {
-                        const dueDate = new Date(installment.fechaVencimiento);
-                        const today = new Date();
-                        const daysUntilDue = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-                        const isOverdue = installment.estado === "pendiente" && daysUntilDue < 0;
-
-                        return (
-                          <tr key={installment.id}>
-                            <td style={{ fontWeight: "600" }}>{installment.numeroCuota}</td>
-                            <td>{formatCurrency(Number(installment.monto))}</td>
-                            <td>{formatDate(installment.fechaVencimiento)}</td>
-                            <td>{installment.fechaPago ? formatDate(installment.fechaPago) : "-"}</td>
-                            <td>
-                              <span
-                                style={{
-                                  color: getInstallmentStatusColor(installment.estado, installment.fechaVencimiento),
-                                  fontWeight: "600",
-                                  fontSize: "var(--font-size-xs)",
-                                  textTransform: "uppercase",
-                                }}
-                              >
-                                {installment.estado === "pendiente" && isOverdue ? "VENCIDA" : installment.estado}
-                              </span>
-                            </td>
-                            <td>
-                              {installment.estado === "pendiente" && (
-                                <span
-                                  style={{
-                                    color:
-                                      daysUntilDue < 0
-                                        ? "var(--error-500)"
-                                        : daysUntilDue <= 7
-                                        ? "var(--warning-500)"
-                                        : "var(--secondary-600)",
-                                    fontSize: "var(--font-size-sm)",
-                                  }}
-                                >
-                                  {daysUntilDue < 0
-                                    ? `${Math.abs(daysUntilDue)} días vencida`
-                                    : daysUntilDue === 0
-                                    ? "Vence hoy"
-                                    : `${daysUntilDue} días restantes`}
-                                </span>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-
-                  {/* Summary */}
-                  <div
-                    style={{
-                      marginTop: "var(--spacing-4)",
-                      padding: "var(--spacing-4)",
-                      backgroundColor: "var(--secondary-50)",
-                      borderRadius: "var(--border-radius-md)",
-                      display: "grid",
-                      gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-                      gap: "var(--spacing-4)",
-                    }}
+              <div className={styles.payForm}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="pay-numeroCuotas">Número de cuotas a pagar</label>
+                  <select
+                    id="pay-numeroCuotas"
+                    name="numeroCuotas"
+                    value={payForm.numeroCuotas}
+                    onChange={handlePayFormChange}
+                    className={`${styles.select} ${validationErrors.numeroCuotas ? styles.inputError : ""}`}
                   >
-                    <div>
-                      <div style={{ fontWeight: "600", color: "var(--secondary-700)" }}>Resumen del Préstamo</div>
-                      <div style={{ marginTop: "var(--spacing-2)" }}>
-                        <p>
-                          <strong>Fecha de solicitud:</strong> {formatDate(loan.fechaCreacion)}
-                        </p>
-                        <p>
-                          <strong>Fecha de vencimiento:</strong> {formatDate(loan.fechaVencimiento!)}
-                        </p>
-                        <p>
-                          <strong>Descripción:</strong> {loan.descripcion}
-                        </p>
-                      </div>
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: "600", color: "var(--secondary-700)" }}>Información Financiera</div>
-                      <div style={{ marginTop: "var(--spacing-2)" }}>
-                        <p>
-                          <strong>Monto total:</strong> {formatCurrency(Number(loan.montoTotal))}
-                        </p>
-                        <p>
-                          <strong>Intereses totales:</strong> {formatCurrency(Number(loan.interesTotal))}
-                        </p>
-                        <p>
-                          <strong>Ratio capacidad de pago:</strong> {(Number(loan.ratioCapacidadPago) * 100).toFixed(1)}
-                          %
-                        </p>
-                      </div>
-                    </div>
-                  </div>
+                    {Array.from(
+                      { length: Math.min(6, selectedLoan.numeroCuotas - selectedLoan.cuotasPagadas) },
+                      (_, i) => i + 1
+                    ).map((num) => (
+                      <option key={num} value={num}>
+                        {num} cuota{num > 1 ? "s" : ""} -{" "}
+                        {formatCurrency((parseFloat(selectedLoan.montoCuota) * num).toString())}
+                      </option>
+                    ))}
+                  </select>
+                  {validationErrors.numeroCuotas && (
+                    <span className={styles.errorText}>{validationErrors.numeroCuotas}</span>
+                  )}
                 </div>
-              );
-            })()}
-          </CardBody>
-        </Card>
-      )}
 
-      {/* Calculate Loan Modal */}
-      {showCalculateModal && (
-        <div className="modal-overlay" onClick={() => setShowCalculateModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <Card>
-              <CardHeader title="Calcular Préstamo" subtitle="Simula tu préstamo antes de solicitarlo" />
-              <CardBody>
-                <form onSubmit={handleCalculateLoan}>
-                  <div className="form-group">
-                    <label htmlFor="monto">Monto del Préstamo (COL$)</label>
-                    <input
-                      type="number"
-                      id="monto"
-                      value={calculateForm.monto}
-                      onChange={(e) =>
-                        setCalculateForm((prev) => ({
-                          ...prev,
-                          monto: Number(e.target.value),
-                        }))
-                      }
-                      required
-                      min="100"
-                      max="50000"
-                      step="50"
-                    />
-                  </div>
+                <div className={styles.formGroup}>
+                  <label htmlFor="pay-fechaPago">Fecha de pago</label>
+                  <input
+                    type="date"
+                    id="pay-fechaPago"
+                    name="fechaPago"
+                    value={payForm.fechaPago}
+                    onChange={handlePayFormChange}
+                    className={`${styles.input} ${validationErrors.fechaPago ? styles.inputError : ""}`}
+                  />
+                  {validationErrors.fechaPago && <span className={styles.errorText}>{validationErrors.fechaPago}</span>}
+                </div>
+              </div>
+            </div>
 
-                  <div className="form-group">
-                    <label htmlFor="cuotas">Número de Cuotas</label>
-                    <select
-                      id="cuotas"
-                      value={calculateForm.numeroCuotas}
-                      onChange={(e) =>
-                        setCalculateForm((prev) => ({
-                          ...prev,
-                          numeroCuotas: Number(e.target.value),
-                        }))
-                      }
-                    >
-                      <option value={1}>1 cuota</option>
-                      <option value={2}>2 cuotas</option>
-                      <option value={3}>3 cuotas</option>
-                      <option value={4}>4 cuotas</option>
-                      <option value={5}>5 cuotas</option>
-                      <option value={6}>6 cuotas</option>
-                    </select>
-                  </div>
-
-                  {calculation && (
-                    <div className="alert alert-info">
-                      <div className="alert-title">Resultado de la Simulación</div>
-                      <div className="alert-message">
-                        <p>
-                          <strong>Monto principal:</strong> {formatCurrency(calculation.montoPrincipal)}
-                        </p>
-                        <p>
-                          <strong>Cuota mensual:</strong> {formatCurrency(calculation.montoCuota)}
-                        </p>
-                        <p>
-                          <strong>Total a pagar:</strong> {formatCurrency(calculation.montoTotal)}
-                        </p>
-                        <p>
-                          <strong>Total intereses:</strong> {formatCurrency(calculation.interesTotal)}
-                        </p>
-                        <p>
-                          <strong>Tasa de interés:</strong> {calculation.tasaInteres}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  <div style={{ display: "flex", gap: "var(--spacing-3)", marginTop: "var(--spacing-4)" }}>
-                    <button type="submit" className="btn btn-primary" disabled={loading}>
-                      {loading ? <span className="loading">Calculando...</span> : "Calcular"}
-                    </button>
-                    <button type="button" className="btn btn-secondary" onClick={() => setShowCalculateModal(false)}>
-                      Cerrar
-                    </button>
-                  </div>
-                </form>
-              </CardBody>
-            </Card>
-          </div>
-        </div>
-      )}
-
-      {/* Request Loan Modal */}
-      {showRequestModal && (
-        <div className="modal-overlay" onClick={() => setShowRequestModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <Card>
-              <CardHeader title="Solicitar Préstamo" subtitle="Completa los datos para tu solicitud" />
-              <CardBody>
-                <form onSubmit={handleRequestLoan}>
-                  <div className="form-group">
-                    <label htmlFor="request-monto">Monto del Préstamo (COL$)</label>
-                    <input
-                      type="number"
-                      id="request-monto"
-                      value={requestForm.monto}
-                      onChange={(e) =>
-                        setRequestForm((prev) => ({
-                          ...prev,
-                          monto: Number(e.target.value),
-                        }))
-                      }
-                      required
-                      min="100"
-                      max="50000"
-                      step="50"
-                    />
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="request-cuotas">Número de Cuotas</label>
-                    <select
-                      id="request-cuotas"
-                      value={requestForm.numeroCuotas}
-                      onChange={(e) =>
-                        setRequestForm((prev) => ({
-                          ...prev,
-                          numeroCuotas: Number(e.target.value),
-                        }))
-                      }
-                    >
-                      <option value={3}>3 cuotas</option>
-                      <option value={6}>6 cuotas</option>
-                      <option value={9}>9 cuotas</option>
-                      <option value={12}>12 cuotas</option>
-                      <option value={18}>18 cuotas</option>
-                      <option value={24}>24 cuotas</option>
-                    </select>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="descripcion">Descripción del Préstamo</label>
-                    <textarea
-                      id="descripcion"
-                      value={requestForm.descripcion}
-                      onChange={(e) =>
-                        setRequestForm((prev) => ({
-                          ...prev,
-                          descripcion: e.target.value,
-                        }))
-                      }
-                      placeholder="Describe brevemente para qué necesitas el préstamo..."
-                    />
-                  </div>
-
-                  <div style={{ display: "flex", gap: "var(--spacing-3)", marginTop: "var(--spacing-4)" }}>
-                    <button type="submit" className="btn btn-primary" disabled={loading}>
-                      {loading ? <span className="loading">Solicitando...</span> : "Solicitar Préstamo"}
-                    </button>
-                    <button type="button" className="btn btn-secondary" onClick={() => setShowRequestModal(false)}>
-                      Cancelar
-                    </button>
-                  </div>
-                </form>
-              </CardBody>
-            </Card>
-          </div>
-        </div>
-      )}
-
-      {/* Payment Modal */}
-      {showPaymentModal && selectedLoanId && (
-        <div className="modal-overlay" onClick={() => setShowPaymentModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <Card>
-              <CardHeader title="Pagar Cuotas" subtitle="Selecciona el número de cuotas a pagar" />
-              <CardBody>
-                <form onSubmit={handlePayInstallment}>
-                  <div className="form-group">
-                    <label htmlFor="payment-cuotas">Número de Cuotas a Pagar</label>
-                    <select
-                      id="payment-cuotas"
-                      value={paymentForm.numeroCuotas || 1}
-                      onChange={(e) =>
-                        setPaymentForm((prev) => ({
-                          ...prev,
-                          numeroCuotas: Number(e.target.value),
-                        }))
-                      }
-                      required
-                    >
-                      <option value={1}>1 cuota</option>
-                      <option value={2}>2 cuotas</option>
-                      <option value={3}>3 cuotas</option>
-                      <option value={4}>4 cuotas</option>
-                      <option value={5}>5 cuotas</option>
-                    </select>
-                  </div>
-
-                  {selectedLoanId && paymentForm.numeroCuotas && (
-                    <div className="alert alert-info">
-                      <div className="alert-title">Resumen del Pago</div>
-                      <div className="alert-message">
-                        {(() => {
-                          const loan = loans.find((l) => l.id === selectedLoanId);
-                          if (loan) {
-                            const totalAmount = +loan.montoCuota * (paymentForm.numeroCuotas || 1);
-                            return (
-                              <>
-                                <p>
-                                  <strong>Cuotas a pagar:</strong> {paymentForm.numeroCuotas}
-                                </p>
-                                <p>
-                                  <strong>Monto por cuota:</strong> {formatCurrency(+loan.montoCuota)}
-                                </p>
-                                <p>
-                                  <strong>Total a pagar:</strong> {formatCurrency(totalAmount)}
-                                </p>
-                              </>
-                            );
-                          }
-                          return null;
-                        })()}
-                      </div>
-                    </div>
-                  )}
-
-                  <div style={{ display: "flex", gap: "var(--spacing-3)", marginTop: "var(--spacing-4)" }}>
-                    <button type="submit" className="btn btn-success" disabled={loading}>
-                      {loading ? <span className="loading">Procesando...</span> : "Confirmar Pago"}
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={() => {
-                        setShowPaymentModal(false);
-                        setSelectedLoanId(null);
-                      }}
-                    >
-                      Cancelar
-                    </button>
-                  </div>
-                </form>
-              </CardBody>
-            </Card>
+            <div className={styles.modalActions}>
+              <button onClick={() => setShowPayModal(false)} className={styles.cancelButton} disabled={submitting}>
+                Cancelar
+              </button>
+              <button onClick={payInstallment} className={styles.confirmButton} disabled={submitting}>
+                <i className="fas fa-credit-card"></i>
+                {submitting ? "Procesando..." : "Pagar Cuotas"}
+              </button>
+            </div>
           </div>
         </div>
       )}
