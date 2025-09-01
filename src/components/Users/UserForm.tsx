@@ -14,6 +14,8 @@ export const UserForm: React.FC<UserFormProps> = ({ onSubmit, onCancel, isLoadin
     name: "",
     email: "",
     whatsapp: "",
+    documentType: "",
+    documentNumber: "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -79,7 +81,7 @@ export const UserForm: React.FC<UserFormProps> = ({ onSubmit, onCancel, isLoadin
           name="nombre"
           value={formData.name}
           onChange={handleChange}
-          error={errors.nombre}
+          error={typeof errors.nombre === "string" ? errors.nombre : undefined}
           placeholder="Ingrese el nombre completo"
           disabled={isLoading}
         />
@@ -90,7 +92,7 @@ export const UserForm: React.FC<UserFormProps> = ({ onSubmit, onCancel, isLoadin
           type="email"
           value={formData.email}
           onChange={handleChange}
-          error={errors.email}
+          error={typeof errors.email === "string" ? errors.email : undefined}
           placeholder="usuario@ejemplo.com"
           disabled={isLoading}
         />
@@ -100,7 +102,7 @@ export const UserForm: React.FC<UserFormProps> = ({ onSubmit, onCancel, isLoadin
           name="telefono"
           value={formData.whatsapp}
           onChange={handleChange}
-          error={errors.telefono}
+          error={typeof errors.telefono === "string" ? errors.telefono : undefined}
           placeholder="+51-999-123456"
           disabled={isLoading}
           helperText="Formato: +51-999-123456 (opcional)"

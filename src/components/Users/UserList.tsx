@@ -14,14 +14,8 @@ interface UserListProps {
   onDeleteUser: (userId: string) => void;
 }
 
-export const UserList: React.FC<UserListProps> = ({
-  users,
-  loading,
-  onCreateUser,
-  onEditUser,
-  onDeleteUser,
-}) => {
-  const navigate = useNavigate(); // 👈 hook de navegación
+export const UserList: React.FC<UserListProps> = ({ users, loading, onCreateUser, onEditUser, onDeleteUser }) => {
+  const navigate = useNavigate();
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("es-PE", {
@@ -86,12 +80,12 @@ export const UserList: React.FC<UserListProps> = ({
           <div className="stat-label">Total Usuarios</div>
         </div>
         <div className="stat-item">
-          <div className="stat-value">{users.reduce((total, user) => total + (user.cuentas?.length || 0), 0)}</div>
-          <div className="stat-label">Total Cuentas</div>
+          <div className="stat-value">{users.reduce((total, user) => total + user.cupos, 0)}</div>
+          <div className="stat-label">Total Cupos</div>
         </div>
         <div className="stat-item">
-          <div className="stat-value">{users.filter((user) => (user.cuentas?.length || 0) > 0).length}</div>
-          <div className="stat-label">Con Cuentas</div>
+          <div className="stat-value">{users.filter((user) => user.cupos > 1).length}</div>
+          <div className="stat-label">Cupos Múltiples</div>
         </div>
       </div>
 
@@ -99,20 +93,16 @@ export const UserList: React.FC<UserListProps> = ({
         <TableHeader>
           <TableRow>
             <TableHeaderCell>Usuario</TableHeaderCell>
-            <TableHeaderCell>Email</TableHeaderCell>
-            <TableHeaderCell>Teléfono</TableHeaderCell>
-            <TableHeaderCell>Cuentas</TableHeaderCell>
+            <TableHeaderCell>Contacto</TableHeaderCell>
+            <TableHeaderCell>Documento</TableHeaderCell>
+            <TableHeaderCell>Cupos</TableHeaderCell>
             <TableHeaderCell>Fecha Registro</TableHeaderCell>
             <TableHeaderCell>Acciones</TableHeaderCell>
           </TableRow>
         </TableHeader>
         <TableBody>
           {users.map((user) => (
-            <TableRow
-              key={user._id}
-              className="user-row"
-              onClick={() => navigate(`/userDetails/${user._id}`)} // 👈 redirección al detalle
-            >
+            <TableRow key={user._id} className="user-row" onClick={() => navigate(`/userDetails/${user._id}`)}>
               <TableCell className="user-cell user-name-cell">
                 <div style={{ display: "flex", alignItems: "center", gap: "var(--spacing-3)" }}>
                   <div
@@ -133,12 +123,101 @@ export const UserList: React.FC<UserListProps> = ({
                     {getInitials(user.name)}
                   </div>
                   <div>
-                    <div style={{ fontWeight: "500" }}>{`${user.name} ${user.lastName}`}</div>
+                    <div style={{ fontWeight: "500" }}>{`${user.name} ${user.lastName || ""}`}</div>
+                    <div
+                      style={{
+                        fontSize: "var(--font-size-sm)",
+                        color: "var(--secondary-500)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "var(--spacing-1)",
+                      }}
+                    >
+                      <span
+                        style={{
+                          display: "inline-flex",
+                          alignItems: "center",
+                          padding: "1px 6px",
+                          borderRadius: "var(--radius-sm)",
+                          backgroundColor: user.role === "admin" ? "var(--success-100)" : "var(--secondary-100)",
+                          color: user.role === "admin" ? "var(--success-700)" : "var(--secondary-600)",
+                          fontSize: "var(--font-size-xs)",
+                          fontWeight: "500",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {user.role}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </TableCell>
-              <TableCell className="user-cell user-email-cell">{user.email}</TableCell>
-              <TableCell className="user-cell user-phone-cell">{user.whatsapp || "-"}</TableCell>
+
+              <TableCell className="user-cell user-contact-cell">
+                <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                  <div
+                    style={{
+                      fontSize: "var(--font-size-sm)",
+                      fontWeight: "500",
+                      color: "var(--secondary-700)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "4px",
+                    }}
+                  >
+                    <span style={{ fontSize: "var(--font-size-xs)" }}>📧</span>
+                    <span style={{ fontSize: "var(--font-size-sm)" }}>{user.email}</span>
+                  </div>
+                  {user.whatsapp && (
+                    <div
+                      style={{
+                        fontSize: "var(--font-size-xs)",
+                        color: "var(--secondary-500)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px",
+                      }}
+                    >
+                      <span style={{ fontSize: "var(--font-size-xs)" }}>📱</span>
+                      <span style={{ fontFamily: "monospace" }}>{user.whatsapp}</span>
+                    </div>
+                  )}
+                  {!user.whatsapp && (
+                    <div
+                      style={{
+                        fontSize: "var(--font-size-xs)",
+                        color: "var(--secondary-400)",
+                        fontStyle: "italic",
+                      }}
+                    >
+                      Sin teléfono
+                    </div>
+                  )}
+                </div>
+              </TableCell>
+
+              <TableCell className="user-cell">
+                <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                  <span
+                    style={{
+                      fontSize: "var(--font-size-sm)",
+                      fontWeight: "500",
+                    }}
+                  >
+                    {user.documentType?.code || "N/A"}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: "var(--font-size-xs)",
+                      color: "var(--secondary-500)",
+                      fontFamily: "monospace",
+                    }}
+                  >
+                    {user.documentNumber}
+                  </span>
+                </div>
+              </TableCell>
+
               <TableCell className="user-cell">
                 <span
                   style={{
@@ -147,23 +226,25 @@ export const UserList: React.FC<UserListProps> = ({
                     gap: "var(--spacing-1)",
                     padding: "var(--spacing-1) var(--spacing-2)",
                     borderRadius: "var(--radius-sm)",
-                    backgroundColor: "var(--primary-100)",
-                    color: "var(--primary-700)",
+                    backgroundColor: user.cupos > 1 ? "var(--success-100)" : "var(--primary-100)",
+                    color: user.cupos > 1 ? "var(--success-700)" : "var(--primary-700)",
                     fontSize: "var(--font-size-sm)",
-                    fontWeight: "500",
+                    fontWeight: "600",
                   }}
                 >
-                  💳 {user.cuentas?.length || 0}
+                  {user.cupos > 1 ? "🌟" : "👤"} {user.cupos}
                 </span>
               </TableCell>
+
               <TableCell className="user-cell user-date-cell">{formatDate(user.createdAt)}</TableCell>
+
               <TableCell className="user-cell user-actions-cell">
                 <div className="action-buttons">
                   <Button
                     variant="secondary"
                     size="sm"
                     onClick={(e) => {
-                      e.stopPropagation(); // ❌ evita que dispare el onClick de la fila
+                      e.stopPropagation();
                       onEditUser(user);
                     }}
                     title="Editar usuario"
@@ -175,7 +256,7 @@ export const UserList: React.FC<UserListProps> = ({
                     variant="error"
                     size="sm"
                     onClick={(e) => {
-                      e.stopPropagation(); // ❌ evita navegación
+                      e.stopPropagation();
                       onDeleteUser(user._id);
                     }}
                     title="Eliminar usuario"

@@ -1,5 +1,6 @@
 /* src\styles\globals.css */
-
+@import "tailwindcss";
+/* @import url("./custom.css"); */
 /* ==================== CSS RESET & GLOBAL STYLES ==================== */
 
 * {
@@ -476,10 +477,9 @@ body {
 }
 
 /* ==================== DARK MODE SUPPORT ==================== */
-
+/* 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Dark Mode Colors */
     --primary-50: #fef2f2;
     --primary-100: #fee2e2;
     --primary-200: #fecaca;
@@ -502,7 +502,6 @@ body {
     --secondary-800: #f1f5f9;
     --secondary-900: #f8fafc;
 
-    /* Status Colors */
     --success-50: #ecfdf5;
     --success-500: #16a34a;
     --success-700: #15803d;
@@ -515,7 +514,6 @@ body {
     --warning-500: #ca8a04;
     --warning-700: #a16207;
 
-    /* Info también la paso a rojo para que sea consistente */
     --info-50: #ecfdf5;
     --info-500: #16a34a;
     --info-700: #15803d;
@@ -525,4 +523,4 @@ body {
     background-color: var(--secondary-50);
     color: var(--secondary-900);
   }
-}
+} */

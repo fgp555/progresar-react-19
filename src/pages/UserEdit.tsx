@@ -3,19 +3,9 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import axiosInstance from "@/config/axiosInstance";
 import Swal from "sweetalert2";
 import "./UserEdit.css";
-
-interface User {
-  _id: string;
-  username: string;
-  name: string;
-  lastName: string;
-  email: string;
-  whatsapp: string;
-  role: string;
-  isActive: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { User } from "@/types";
+import { useDocumentTypes } from "@/hooks/useDocumentTypes";
+import { useDocumentValidation } from "@/hooks/useDocumentValidation";
 
 interface UserUpdateData {
   username: string;
@@ -25,17 +15,34 @@ interface UserUpdateData {
   whatsapp: string;
   role: string;
   isActive: boolean;
+  documentNumber: string;
+  documentType: string;
+  cupos: number;
 }
 
 const UserEditPage = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
 
+  // Custom hooks
+  const {
+    // documentTypes,
+    loading: typesLoading,
+    error: typesError,
+    getDocumentTypeOptions,
+    findDocumentTypeByCode,
+    clearError: clearTypesError,
+  } = useDocumentTypes();
+
+  const { validateDocumentNumber } = useDocumentValidation();
+
+  // Local state
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
+  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
 
   // Form data
   const [formData, setFormData] = useState<UserUpdateData>({
@@ -46,7 +53,13 @@ const UserEditPage = () => {
     whatsapp: "",
     role: "user",
     isActive: true,
+    documentNumber: "",
+    documentType: "",
+    cupos: 1,
   });
+
+  // Get document type options for select
+  const documentTypeOptions = getDocumentTypeOptions();
 
   // Fetch user data
   useEffect(() => {
@@ -71,6 +84,9 @@ const UserEditPage = () => {
           whatsapp: userData.whatsapp || "",
           role: userData.role || "user",
           isActive: userData.isActive ?? true,
+          documentNumber: userData.documentNumber || "",
+          documentType: userData.documentType?.code || "",
+          cupos: userData.cupos || 1,
         });
 
         setError("");
@@ -96,9 +112,14 @@ const UserEditPage = () => {
     fetchUser();
   }, [userId]);
 
-  // Handle input changes
+  // Handle input changes with validation
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
+
+    // Clear validation error for this field
+    if (validationErrors[name]) {
+      setValidationErrors((prev) => ({ ...prev, [name]: "" }));
+    }
 
     if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked;
@@ -106,12 +127,64 @@ const UserEditPage = () => {
         ...prev,
         [name]: checked,
       }));
+    } else if (type === "number") {
+      const numValue = parseInt(value) || 1;
+      setFormData((prev) => ({
+        ...prev,
+        [name]: Math.max(1, numValue), // Mínimo 1 cupo
+      }));
     } else {
       setFormData((prev) => ({
         ...prev,
         [name]: value,
       }));
+
+      // Real-time validation for document number
+      if (name === "documentNumber" && formData.documentType && value) {
+        const validation = validateDocumentNumber(formData.documentType, value);
+        if (!validation.isValid) {
+          setValidationErrors((prev) => ({
+            ...prev,
+            documentNumber: validation.message || "Número de documento inválido",
+          }));
+        }
+      }
     }
+  };
+
+  // Validate form
+  const validateForm = (): boolean => {
+    const errors: { [key: string]: string } = {};
+
+    // Required fields validation
+    if (!formData.name.trim()) errors.name = "El nombre es requerido";
+    if (!formData.lastName.trim()) errors.lastName = "El apellido es requerido";
+    if (!formData.email.trim()) errors.email = "El email es requerido";
+    if (!formData.username.trim()) errors.username = "El nombre de usuario es requerido";
+    if (!formData.documentNumber.trim()) errors.documentNumber = "El número de documento es requerido";
+    if (!formData.documentType) errors.documentType = "El tipo de documento es requerido";
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (formData.email && !emailRegex.test(formData.email)) {
+      errors.email = "Por favor ingresa un email válido";
+    }
+
+    // Document validation
+    if (formData.documentType && formData.documentNumber) {
+      const validation = validateDocumentNumber(formData.documentType, formData.documentNumber);
+      if (!validation.isValid) {
+        errors.documentNumber = validation.message || "Número de documento inválido";
+      }
+    }
+
+    // Check if document type exists
+    if (formData.documentType && !findDocumentTypeByCode(formData.documentType)) {
+      errors.documentType = "Tipo de documento no válido";
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   // Handle form submission
@@ -120,16 +193,9 @@ const UserEditPage = () => {
 
     if (!userId) return;
 
-    // Basic validation
-    if (!formData.name || !formData.lastName || !formData.email || !formData.username) {
-      setError("Por favor completa todos los campos obligatorios");
-      return;
-    }
-
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setError("Por favor ingresa un email válido");
+    // Validate form
+    if (!validateForm()) {
+      setError("Por favor corrige los errores en el formulario");
       return;
     }
 
@@ -152,8 +218,8 @@ const UserEditPage = () => {
           confirmButtonColor: "#dc2626",
         });
 
-        // Navigate back to user details or users list
-        navigate(`/dashboard/users/${userId}`);
+        // Navigate back to user details
+        navigate(`/userDetails/${userId}`);
       }
     } catch (err: unknown) {
       let errorMessage = "Error al actualizar usuario";
@@ -196,17 +262,25 @@ const UserEditPage = () => {
       whatsapp: user.whatsapp || "",
       role: user.role || "user",
       isActive: user.isActive ?? true,
+      documentNumber: user.documentNumber || "",
+      documentType: user.documentType?.code || "",
+      cupos: user.cupos || 1,
     });
 
     setError("");
     setSuccess("");
+    setValidationErrors({});
   };
 
+  // Get document type info for display
+  const currentDocumentType = formData.documentType ? findDocumentTypeByCode(formData.documentType) : null;
+
   // Loading state
-  if (loading) {
+  if (loading || typesLoading) {
     return (
       <div className="user-edit-loading">
         <p>Cargando información del usuario...</p>
+        {typesLoading && <p>Cargando tipos de documento...</p>}
       </div>
     );
   }
@@ -244,12 +318,25 @@ const UserEditPage = () => {
         </Link>
       </div>
 
+      {/* Error messages */}
       {error && <div className="error-message">{error}</div>}
-
+      {typesError && (
+        <div className="error-message">
+          Error al cargar tipos de documento: {typesError}
+          <button onClick={clearTypesError} style={{ marginLeft: "10px" }}>
+            ×
+          </button>
+        </div>
+      )}
       {success && <div className="success-message">{success}</div>}
 
       <form onSubmit={handleSubmit} className="user-edit-form">
         <div className="user-edit-form-grid">
+          {/* Información Personal */}
+          <div className="form-section-header user-edit-form-full">
+            <h3>Información Personal</h3>
+          </div>
+
           <div className="form-group">
             <label htmlFor="name">Nombre *</label>
             <input
@@ -259,8 +346,10 @@ const UserEditPage = () => {
               value={formData.name}
               onChange={handleInputChange}
               placeholder="Ingresa el nombre"
+              className={validationErrors.name ? "error" : ""}
               required
             />
+            {validationErrors.name && <small className="error-text">{validationErrors.name}</small>}
           </div>
 
           <div className="form-group">
@@ -272,8 +361,10 @@ const UserEditPage = () => {
               value={formData.lastName}
               onChange={handleInputChange}
               placeholder="Ingresa el apellido"
+              className={validationErrors.lastName ? "error" : ""}
               required
             />
+            {validationErrors.lastName && <small className="error-text">{validationErrors.lastName}</small>}
           </div>
 
           <div className="form-group">
@@ -285,8 +376,10 @@ const UserEditPage = () => {
               value={formData.email}
               onChange={handleInputChange}
               placeholder="usuario@ejemplo.com"
+              className={validationErrors.email ? "error" : ""}
               required
             />
+            {validationErrors.email && <small className="error-text">{validationErrors.email}</small>}
           </div>
 
           <div className="form-group">
@@ -301,6 +394,58 @@ const UserEditPage = () => {
             />
           </div>
 
+          {/* Documentación */}
+          <div className="form-section-header user-edit-form-full">
+            <h3>Documentación</h3>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="documentType">Tipo de Documento *</label>
+            <select
+              id="documentType"
+              name="documentType"
+              value={formData.documentType}
+              onChange={handleInputChange}
+              className={validationErrors.documentType ? "error" : ""}
+              required
+            >
+              <option value="">Seleccionar tipo de documento</option>
+              {documentTypeOptions.map((option) => (
+                <option key={option.id} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            {validationErrors.documentType && <small className="error-text">{validationErrors.documentType}</small>}
+            {currentDocumentType && (
+              <small
+                style={{ color: "var(--secondary-600)", fontSize: "0.875rem", display: "block", marginTop: "4px" }}
+              >
+                Tipo seleccionado: {currentDocumentType.name}
+              </small>
+            )}
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="documentNumber">Número de Documento *</label>
+            <input
+              type="text"
+              id="documentNumber"
+              name="documentNumber"
+              value={formData.documentNumber}
+              onChange={handleInputChange}
+              placeholder="Número de documento"
+              className={validationErrors.documentNumber ? "error" : ""}
+              required
+            />
+            {validationErrors.documentNumber && <small className="error-text">{validationErrors.documentNumber}</small>}
+          </div>
+
+          {/* Configuración de Cuenta */}
+          <div className="form-section-header user-edit-form-full">
+            <h3>Configuración de Cuenta</h3>
+          </div>
+
           <div className="form-group">
             <label htmlFor="username">Nombre de Usuario *</label>
             <input
@@ -310,8 +455,10 @@ const UserEditPage = () => {
               value={formData.username}
               onChange={handleInputChange}
               placeholder="nombreusuario"
+              className={validationErrors.username ? "error" : ""}
               required
             />
+            {validationErrors.username && <small className="error-text">{validationErrors.username}</small>}
           </div>
 
           <div className="form-group">
@@ -321,6 +468,24 @@ const UserEditPage = () => {
               <option value="admin">👑 Administrador</option>
               <option value="moderator">🛡️ Moderador</option>
             </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="cupos">Cupos Disponibles *</label>
+            <input
+              type="number"
+              id="cupos"
+              name="cupos"
+              value={formData.cupos}
+              onChange={handleInputChange}
+              min="1"
+              max="10"
+              placeholder="1"
+              required
+            />
+            <small style={{ color: "var(--secondary-500)", fontSize: "0.875rem" }}>
+              Cantidad de cupos que puede utilizar el usuario (mínimo 1, máximo 10)
+            </small>
           </div>
 
           <div className="form-group user-edit-form-full">
@@ -360,6 +525,20 @@ const UserEditPage = () => {
           <span className="user-edit-id">{user._id}</span>
         </div>
         <div className="user-edit-metadata-item">
+          <strong>Tipo de Documento:</strong>
+          <span>
+            {user.documentType?.name || "No especificado"} ({user.documentType?.code || "N/A"})
+          </span>
+        </div>
+        <div className="user-edit-metadata-item">
+          <strong>Número de Documento:</strong>
+          <span>{user.documentNumber || "No especificado"}</span>
+        </div>
+        <div className="user-edit-metadata-item">
+          <strong>Cupos Asignados:</strong>
+          <span>{user.cupos}</span>
+        </div>
+        <div className="user-edit-metadata-item">
           <strong>Fecha de Creación:</strong>
           <span>{new Date(user.createdAt).toLocaleString("es-ES")}</span>
         </div>
@@ -368,6 +547,7 @@ const UserEditPage = () => {
           <span>{new Date(user.updatedAt).toLocaleString("es-ES")}</span>
         </div>
       </div>
+      <pre>{JSON.stringify(formData, null, 2)}</pre>
     </div>
   );
 };

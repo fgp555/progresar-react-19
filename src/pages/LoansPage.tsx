@@ -244,9 +244,9 @@ const LoansPage: React.FC = () => {
                   {loans.map((loan) => (
                     <tr key={loan.id}>
                       <td style={{ fontFamily: "monospace" }}>{loan.id.slice(-8)}</td>
-                      <td>{formatCurrency(loan.montoPrincipal)}</td>
+                      <td>{formatCurrency(Number(loan.montoPrincipal))}</td>
                       <td>{loan.numeroCuotas}</td>
-                      <td>{formatCurrency(loan.montoCuota)}</td>
+                      <td>{formatCurrency(Number(loan.montoCuota))}</td>
                       <td>
                         <span
                           style={{
@@ -642,14 +642,14 @@ const LoansPage: React.FC = () => {
                         {(() => {
                           const loan = loans.find((l) => l.id === selectedLoanId);
                           if (loan) {
-                            const totalAmount = loan.montoCuota * (paymentForm.numeroCuotas || 1);
+                            const totalAmount = +loan.montoCuota * (paymentForm.numeroCuotas || 1);
                             return (
                               <>
                                 <p>
                                   <strong>Cuotas a pagar:</strong> {paymentForm.numeroCuotas}
                                 </p>
                                 <p>
-                                  <strong>Monto por cuota:</strong> {formatCurrency(loan.montoCuota)}
+                                  <strong>Monto por cuota:</strong> {formatCurrency(+loan.montoCuota)}
                                 </p>
                                 <p>
                                   <strong>Total a pagar:</strong> {formatCurrency(totalAmount)}

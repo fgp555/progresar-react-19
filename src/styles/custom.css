@@ -1,0 +1,279 @@
+/* src/styles/custom.css */
+
+/* Variables CSS para consistencia de colores */
+:root {
+  --color-primary: #dc2626; /* red-600 */
+  --color-primary-hover: #b91c1c; /* red-700 */
+  --color-secondary: #6b7280; /* gray-500 */
+  --color-success: #059669; /* green-600 */
+  --color-warning: #d97706; /* amber-600 */
+  --color-error: #dc2626; /* red-600 */
+}
+
+/* Dark mode variables */
+.dark {
+  --color-primary: #ef4444; /* red-500 */
+  --color-primary-hover: #dc2626; /* red-600 */
+  --color-secondary: #9ca3af; /* gray-400 */
+  --color-success: #10b981; /* green-500 */
+  --color-warning: #f59e0b; /* amber-500 */
+  --color-error: #ef4444; /* red-500 */
+}
+
+/* Transiciones suaves para el cambio de tema */
+* {
+  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Estilos personalizados para la tabla */
+.user-table {
+  @apply min-w-full divide-y divide-gray-200 dark:divide-gray-600;
+}
+
+.user-table thead {
+  @apply bg-gray-50 dark:bg-gray-700;
+}
+
+.user-table th {
+  @apply px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider;
+}
+
+.user-table tbody {
+  @apply bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-600;
+}
+
+.user-table tr {
+  @apply hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors;
+}
+
+.user-table td {
+  @apply px-6 py-4 whitespace-nowrap;
+}
+
+/* Botones personalizados */
+.btn-primary {
+  @apply inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 text-white rounded-lg transition-colors shadow-sm font-medium;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium;
+}
+
+.btn-ghost {
+  @apply inline-flex items-center px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white transition-colors;
+}
+
+.btn-danger {
+  @apply inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors shadow-sm font-medium;
+}
+
+.btn-success {
+  @apply inline-flex items-center px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors shadow-sm font-medium;
+}
+
+/* Inputs personalizados */
+.input-primary {
+  @apply w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-black dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors;
+}
+
+.input-search {
+  @apply w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-black dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors;
+}
+
+/* Cards personalizadas */
+.card {
+  @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 transition-colors;
+}
+
+.card-header {
+  @apply px-6 py-4 border-b border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700;
+}
+
+.card-body {
+  @apply p-6;
+}
+
+/* Badges/Pills personalizados */
+.badge {
+  @apply inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full;
+}
+
+.badge-success {
+  @apply bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200;
+}
+
+.badge-error {
+  @apply bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200;
+}
+
+.badge-warning {
+  @apply bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200;
+}
+
+.badge-info {
+  @apply bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200;
+}
+
+.badge-gray {
+  @apply bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200;
+}
+
+/* Roles badges con colores específicos */
+.role-superadmin {
+  @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200;
+}
+
+.role-admin {
+  @apply bg-red-50 text-red-700 dark:bg-red-800 dark:text-red-300;
+}
+
+.role-user {
+  @apply bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200;
+}
+
+.role-collaborator {
+  @apply bg-gray-50 text-gray-700 dark:bg-gray-600 dark:text-gray-300;
+}
+
+.role-developer {
+  @apply bg-black text-white dark:bg-white dark:text-black;
+}
+
+.role-guest {
+  @apply bg-gray-200 text-gray-600 dark:bg-gray-800 dark:text-gray-400;
+}
+
+/* Alertas */
+.alert {
+  @apply p-4 rounded-lg border;
+}
+
+.alert-error {
+  @apply bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300;
+}
+
+.alert-success {
+  @apply bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300;
+}
+
+.alert-warning {
+  @apply bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800 text-yellow-700 dark:text-yellow-300;
+}
+
+.alert-info {
+  @apply bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300;
+}
+
+/* Spinner personalizado */
+.spinner {
+  @apply inline-block animate-spin rounded-full border-2 border-solid border-current border-r-transparent;
+}
+
+/* Scrollbar personalizada */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-700;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-500 rounded-full;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-gray-400;
+}
+
+/* Animaciones personalizadas */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.3s ease-out;
+}
+
+/* Hover effects mejorados */
+.hover-lift {
+  @apply transition-transform duration-200 hover:transform hover:-translate-y-1 hover:shadow-lg;
+}
+
+.hover-scale {
+  @apply transition-transform duration-200 hover:transform hover:scale-105;
+}
+
+/* Focus styles mejorados */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800;
+}
+
+/* Checkbox y radio personalizado */
+.checkbox-custom {
+  @apply h-4 w-4 text-red-600 border-gray-300 dark:border-gray-600 rounded focus:ring-red-500 dark:bg-gray-700;
+}
+
+.radio-custom {
+  @apply h-4 w-4 text-red-600 border-gray-300 dark:border-gray-600 focus:ring-red-500 dark:bg-gray-700;
+}
+
+/* Select personalizado */
+.select-custom {
+  @apply w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 bg-white dark:bg-gray-700 text-black dark:text-white focus:ring-2 focus:ring-red-500 focus:border-transparent transition-colors;
+}
+
+/* Responsive utilities adicionales */
+@screen sm {
+  .sm-max-w-sm {
+    max-width: 24rem;
+  }
+}
+
+@screen md {
+  .md-max-w-md {
+    max-width: 28rem;
+  }
+}
+
+@screen lg {
+  .lg-max-w-lg {
+    max-width: 32rem;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  .print-break {
+    page-break-before: always;
+  }
+}
