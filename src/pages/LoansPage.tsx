@@ -9,7 +9,7 @@ interface LoanInstallment {
   monto: string;
   fechaVencimiento: string;
   fechaPago?: string | null;
-  estado: "PENDIENTE" | "PAGADA" | "VENCIDA";
+  estado: "pendiente" | "pagada" | "vencida";
 }
 
 interface Account {
@@ -34,7 +34,7 @@ interface Loan {
   cuotasPagadas: number;
   fechaVencimiento: string;
   fechaCompletado?: string | null;
-  estado: "ACTIVO" | "COMPLETADO" | "VENCIDO";
+  estado: "activo" | "completado" | "vencido";
   descripcion: string;
   scoreAprobacion: number;
   ratioCapacidadPago: string;
@@ -51,6 +51,11 @@ interface CreateLoanForm {
 
 interface PayInstallmentForm {
   numeroCuotas: number;
+  fechaPago: string;
+}
+
+interface PaySingleInstallmentForm {
+  installmentId: string;
   fechaPago: string;
 }
 
@@ -74,6 +79,8 @@ const LoansPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"loans" | "request" | "calculate">("loans");
   const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null);
   const [showPayModal, setShowPayModal] = useState<boolean>(false);
+  const [showSinglePayModal, setShowSinglePayModal] = useState<boolean>(false);
+  const [selectedInstallment, setSelectedInstallment] = useState<LoanInstallment | null>(null);
 
   const [createLoanForm, setCreateLoanForm] = useState<CreateLoanForm>({
     monto: "",
@@ -84,6 +91,11 @@ const LoansPage: React.FC = () => {
 
   const [payForm, setPayForm] = useState<PayInstallmentForm>({
     numeroCuotas: 1,
+    fechaPago: new Date().toISOString().split("T")[0],
+  });
+
+  const [singlePayForm, setSinglePayForm] = useState<PaySingleInstallmentForm>({
+    installmentId: "",
     fechaPago: new Date().toISOString().split("T")[0],
   });
 
@@ -137,7 +149,7 @@ const LoansPage: React.FC = () => {
     if (!createLoanForm.monto || createLoanForm.monto.toString().trim() === "") {
       errors.monto = "El monto es requerido";
     } else {
-      const amount = parseFloat(createLoanForm.monto.toString());
+      const amount = parseFloat(createLoanForm.monto.toString().replace(/,/g, ""));
       if (isNaN(amount) || amount <= 0) {
         errors.monto = "El monto debe ser un número positivo";
       } else if (account) {
@@ -148,14 +160,6 @@ const LoansPage: React.FC = () => {
         }
       }
     }
-
-    // if (createLoanForm.numeroCuotas < 1 || createLoanForm.numeroCuotas > 6) {
-    //   errors.numeroCuotas = "El número de cuotas debe ser entre 1 y 6";
-    // }
-
-    // if (!createLoanForm.descripcion.trim()) {
-    //   errors.descripcion = "La descripción es requerida";
-    // }
 
     if (!createLoanForm.fechaCreacion) {
       errors.fechaCreacion = "La fecha de creación es requerida";
@@ -168,11 +172,18 @@ const LoansPage: React.FC = () => {
   const validatePayForm = (): boolean => {
     const errors: { [key: string]: string } = {};
 
-    // if (payForm.numeroCuotas < 1 || payForm.numeroCuotas > 6) {
-    //   errors.numeroCuotas = "El número de cuotas debe ser entre 1 y 6";
-    // }
-
     if (!payForm.fechaPago) {
+      errors.fechaPago = "La fecha de pago es requerida";
+    }
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const validateSinglePayForm = (): boolean => {
+    const errors: { [key: string]: string } = {};
+
+    if (!singlePayForm.fechaPago) {
       errors.fechaPago = "La fecha de pago es requerida";
     }
 
@@ -191,6 +202,10 @@ const LoansPage: React.FC = () => {
     if (type === "number") {
       const numValue = parseInt(value) || 1;
       setCreateLoanForm((prev) => ({ ...prev, [name]: numValue }));
+    } else if (name === "monto") {
+      // Format the amount input with thousands separators
+      const formattedValue = formatNumberInput(value);
+      setCreateLoanForm((prev) => ({ ...prev, [name]: formattedValue }));
     } else {
       setCreateLoanForm((prev) => ({ ...prev, [name]: value }));
     }
@@ -212,6 +227,17 @@ const LoansPage: React.FC = () => {
     }
   };
 
+  const handleSinglePayFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    // Clear validation error for this field
+    if (validationErrors[name]) {
+      setValidationErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+
+    setSinglePayForm((prev) => ({ ...prev, [name]: value }));
+  };
+
   const calculateLoan = async () => {
     if (!createLoanForm.monto || createLoanForm.numeroCuotas < 1 || createLoanForm.numeroCuotas > 6) {
       setError("Por favor ingresa un monto válido y número de cuotas entre 1 y 6");
@@ -219,8 +245,9 @@ const LoansPage: React.FC = () => {
     }
 
     try {
+      const cleanAmount = parseFloat(createLoanForm.monto.toString().replace(/,/g, ""));
       const response: any = await axiosInstance.post("/api/progresar/prestamos/calculate", {
-        monto: parseFloat(createLoanForm.monto.toString()),
+        monto: cleanAmount,
         numeroCuotas: createLoanForm.numeroCuotas,
       });
 
@@ -245,8 +272,9 @@ const LoansPage: React.FC = () => {
     setError("");
 
     try {
+      const cleanAmount = parseFloat(createLoanForm.monto.replace(/,/g, ""));
       const payload = {
-        monto: parseFloat(createLoanForm.monto),
+        monto: cleanAmount,
         numeroCuotas: createLoanForm.numeroCuotas,
         descripcion: createLoanForm.descripcion,
         fechaCreacion: createLoanForm.fechaCreacion,
@@ -323,9 +351,51 @@ const LoansPage: React.FC = () => {
     }
   };
 
+  const paySingleInstallment = async () => {
+    if (!validateSinglePayForm() || !selectedLoan || !selectedInstallment) {
+      setError("Por favor corrige los errores en el formulario");
+      return;
+    }
+
+    setSubmitting(true);
+    setError("");
+
+    try {
+      const payload = {
+        numeroCuotas: 1,
+        fechaPago: singlePayForm.fechaPago,
+      };
+
+      const response: any = await axiosInstance.post(`/api/progresar/prestamos/pay/${selectedLoan.id}`, payload);
+
+      if (response.data.success) {
+        // Reset form and close modal
+        setSinglePayForm({
+          installmentId: "",
+          fechaPago: new Date().toISOString().split("T")[0],
+        });
+        setShowSinglePayModal(false);
+        setSelectedLoan(null);
+        setSelectedInstallment(null);
+
+        // Refresh loans
+        const loansResponse: any = await axiosInstance.get(`/api/progresar/prestamos/account/${accountId}`);
+        if (loansResponse.data.success) {
+          setLoans(loansResponse.data.data);
+        }
+      }
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.message || "Error al pagar la cuota";
+      setError(errorMessage);
+      console.error("Error paying single installment:", err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const openPayModal = (loan: Loan) => {
     setSelectedLoan(loan);
-    const pendingInstallments = loan.cuotas.filter((c) => c.estado === "PENDIENTE").length;
+    const pendingInstallments = loan.cuotas.filter((c) => c.estado === "pendiente").length;
     setPayForm({
       numeroCuotas: Math.min(1, pendingInstallments),
       fechaPago: new Date().toISOString().split("T")[0],
@@ -333,13 +403,51 @@ const LoansPage: React.FC = () => {
     setShowPayModal(true);
   };
 
+  const openSinglePayModal = (loan: Loan, installment: LoanInstallment) => {
+    setSelectedLoan(loan);
+    setSelectedInstallment(installment);
+    setSinglePayForm({
+      installmentId: installment.id,
+      fechaPago: new Date().toISOString().split("T")[0],
+    });
+    setShowSinglePayModal(true);
+  };
+
+  // Enhanced currency formatting function
   const formatCurrency = (amount: string): string => {
     const number = parseFloat(amount);
+    if (isNaN(number)) return "$0";
+
     return new Intl.NumberFormat("es-CO", {
       style: "currency",
       currency: "COP",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(number);
   };
+
+  // Function to format number input with thousands separators
+  const formatNumberInput = (value: string): string => {
+    // Remove all non-numeric characters
+    const numericValue = value.replace(/[^\d]/g, "");
+
+    // If empty, return empty string
+    if (!numericValue) return "";
+
+    // Format with thousands separators
+    return new Intl.NumberFormat("es-CO").format(parseInt(numericValue));
+  };
+
+  // Function to format numbers without currency symbol (for display)
+  // const formatNumber = (amount: string | number): string => {
+  //   const number = typeof amount === "string" ? parseFloat(amount) : amount;
+  //   if (isNaN(number)) return "0";
+
+  //   return new Intl.NumberFormat("es-CO", {
+  //     minimumFractionDigits: 0,
+  //     maximumFractionDigits: 0,
+  //   }).format(number);
+  // };
 
   const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleDateString("es-CO", {
@@ -350,7 +458,7 @@ const LoansPage: React.FC = () => {
   };
 
   const getStatusColor = (status: string): string => {
-    switch (status) {
+    switch (status.toUpperCase()) {
       case "ACTIVO":
         return styles.active;
       case "COMPLETADO":
@@ -382,9 +490,9 @@ const LoansPage: React.FC = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1 className={styles.title}>Gestión de Préstamos</h1>
-        <Link to="/accounts" className={styles.backBtn}>
+        <Link to="/users" className={styles.backBtn}>
           <i className="fas fa-arrow-left"></i>
-          Volver a Cuentas
+          Volver
         </Link>
       </div>
 
@@ -486,11 +594,11 @@ const LoansPage: React.FC = () => {
                       </div>
                     </div>
 
-                    {loan.estado === "ACTIVO" && (
+                    {loan.estado === "activo" && (
                       <div className={styles.loanActions}>
                         <button onClick={() => openPayModal(loan)} className={styles.payButton}>
                           <i className="fas fa-credit-card"></i>
-                          Pagar Cuotas
+                          Pagar Múltiples Cuotas
                         </button>
                       </div>
                     )}
@@ -516,6 +624,17 @@ const LoansPage: React.FC = () => {
                                 )}
                               </span>
                             </div>
+                            {installment.estado === "pendiente" && loan.estado === "activo" && (
+                              <div className={styles.installmentActions}>
+                                <button
+                                  onClick={() => openSinglePayModal(loan, installment)}
+                                  className={styles.paySingleButton}
+                                >
+                                  <i className="fas fa-money-bill-wave"></i>
+                                  Pagar Esta Cuota
+                                </button>
+                              </div>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -550,9 +669,10 @@ const LoansPage: React.FC = () => {
                     name="monto"
                     value={createLoanForm.monto}
                     onChange={handleCreateFormChange}
-                    placeholder="Ej: 1000000"
+                    placeholder="Ej: 1,000,000"
                     className={styles.input}
                   />
+                  <small className={styles.inputHint}>Use format: 1,000,000</small>
                 </div>
 
                 <div className={styles.formGroup}>
@@ -626,54 +746,57 @@ const LoansPage: React.FC = () => {
               className={styles.loanForm}
             >
               <div className={styles.formGrid}>
-                <div className={styles.formGroup}>
-                  <label htmlFor="monto">Monto solicitado *</label>
-                  <input
-                    type="text"
-                    id="monto"
-                    name="monto"
-                    value={createLoanForm.monto}
-                    onChange={handleCreateFormChange}
-                    placeholder="Ej: 1000000"
-                    className={`${styles.input} ${validationErrors.monto ? styles.inputError : ""}`}
-                    required
-                  />
-                  {validationErrors.monto && <span className={styles.errorText}>{validationErrors.monto}</span>}
-                </div>
+                <div className={styles.formGroupContainer}>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="monto">Monto solicitado *</label>
+                    <input
+                      type="text"
+                      id="monto"
+                      name="monto"
+                      value={createLoanForm.monto}
+                      onChange={handleCreateFormChange}
+                      placeholder="Ej: 1,000,000"
+                      className={`${styles.input} ${validationErrors.monto ? styles.inputError : ""}`}
+                      required
+                    />
+                    <small className={styles.inputHint}>Use format: 1,000,000</small>
+                    {validationErrors.monto && <span className={styles.errorText}>{validationErrors.monto}</span>}
+                  </div>
 
-                <div className={styles.formGroup}>
-                  <label htmlFor="numeroCuotas">Número de cuotas *</label>
-                  <input
-                    type="number"
-                    id="numeroCuotas"
-                    name="numeroCuotas"
-                    value={createLoanForm.numeroCuotas}
-                    onChange={handleCreateFormChange}
-                    className={`${styles.input} ${validationErrors.numeroCuotas ? styles.inputError : ""}`}
-                    required
-                    min={1}
-                    max={120} // 👈 ajusta según tus reglas de negocio
-                    placeholder="Ej: 6"
-                  />
-                  {validationErrors.numeroCuotas && (
-                    <span className={styles.errorText}>{validationErrors.numeroCuotas}</span>
-                  )}
-                </div>
+                  <div className={styles.formGroup}>
+                    <label htmlFor="numeroCuotas">Número de cuotas *</label>
+                    <input
+                      type="number"
+                      id="numeroCuotas"
+                      name="numeroCuotas"
+                      value={createLoanForm.numeroCuotas}
+                      onChange={handleCreateFormChange}
+                      className={`${styles.input} ${validationErrors.numeroCuotas ? styles.inputError : ""}`}
+                      required
+                      min={1}
+                      max={120}
+                      placeholder="Ej: 6"
+                    />
+                    {validationErrors.numeroCuotas && (
+                      <span className={styles.errorText}>{validationErrors.numeroCuotas}</span>
+                    )}
+                  </div>
 
-                <div className={styles.formGroup}>
-                  <label htmlFor="fechaCreacion">Fecha de solicitud *</label>
-                  <input
-                    type="date"
-                    id="fechaCreacion"
-                    name="fechaCreacion"
-                    value={createLoanForm.fechaCreacion}
-                    onChange={handleCreateFormChange}
-                    className={`${styles.input} ${validationErrors.fechaCreacion ? styles.inputError : ""}`}
-                    required
-                  />
-                  {validationErrors.fechaCreacion && (
-                    <span className={styles.errorText}>{validationErrors.fechaCreacion}</span>
-                  )}
+                  <div className={styles.formGroup}>
+                    <label htmlFor="fechaCreacion">Fecha de solicitud *</label>
+                    <input
+                      type="date"
+                      id="fechaCreacion"
+                      name="fechaCreacion"
+                      value={createLoanForm.fechaCreacion}
+                      onChange={handleCreateFormChange}
+                      className={`${styles.input} ${validationErrors.fechaCreacion ? styles.inputError : ""}`}
+                      required
+                    />
+                    {validationErrors.fechaCreacion && (
+                      <span className={styles.errorText}>{validationErrors.fechaCreacion}</span>
+                    )}
+                  </div>
                 </div>
 
                 <div className={`${styles.formGroup} ${styles.fullWidth}`}>
@@ -702,12 +825,12 @@ const LoansPage: React.FC = () => {
         )}
       </div>
 
-      {/* Pay Installment Modal */}
+      {/* Pay Multiple Installments Modal */}
       {showPayModal && selectedLoan && (
         <div className={styles.modal}>
           <div className={styles.modalContent}>
             <div className={styles.modalHeader}>
-              <h3>Pagar Cuotas - Préstamo</h3>
+              <h3>Pagar Múltiples Cuotas - Préstamo</h3>
               <button onClick={() => setShowPayModal(false)} className={styles.modalClose}>
                 <i className="fas fa-times"></i>
               </button>
@@ -773,6 +896,76 @@ const LoansPage: React.FC = () => {
               <button onClick={payInstallment} className={styles.confirmButton} disabled={submitting}>
                 <i className="fas fa-credit-card"></i>
                 {submitting ? "Procesando..." : "Pagar Cuotas"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Pay Single Installment Modal */}
+      {showSinglePayModal && selectedLoan && selectedInstallment && (
+        <div className={styles.modal}>
+          <div className={styles.modalContent}>
+            <div className={styles.modalHeader}>
+              <h3>Pagar Cuota Individual</h3>
+              <button onClick={() => setShowSinglePayModal(false)} className={styles.modalClose}>
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+
+            <div className={styles.modalBody}>
+              <div className={styles.loanSummary}>
+                <p>
+                  <strong>Préstamo:</strong> {formatCurrency(selectedLoan.montoPrincipal)}
+                </p>
+                <p>
+                  <strong>Cuota #{selectedInstallment.numeroCuota}:</strong> {formatCurrency(selectedInstallment.monto)}
+                </p>
+                <p>
+                  <strong>Fecha de vencimiento:</strong> {formatDate(selectedInstallment.fechaVencimiento)}
+                </p>
+                <p>
+                  <strong>Estado:</strong>{" "}
+                  <span className={`${styles.status} ${getStatusColor(selectedInstallment.estado)}`}>
+                    {selectedInstallment.estado}
+                  </span>
+                </p>
+              </div>
+
+              <div className={styles.payForm}>
+                <div className={styles.formGroup}>
+                  <label htmlFor="single-pay-fechaPago">Fecha de pago</label>
+                  <input
+                    type="date"
+                    id="single-pay-fechaPago"
+                    name="fechaPago"
+                    value={singlePayForm.fechaPago}
+                    onChange={handleSinglePayFormChange}
+                    className={`${styles.input} ${validationErrors.fechaPago ? styles.inputError : ""}`}
+                  />
+                  {validationErrors.fechaPago && <span className={styles.errorText}>{validationErrors.fechaPago}</span>}
+                </div>
+
+                <div className={styles.paymentSummary}>
+                  <div className={styles.summaryItem}>
+                    <span>Monto a pagar:</span>
+                    <strong>{formatCurrency(selectedInstallment.monto)}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.modalActions}>
+              <button
+                onClick={() => setShowSinglePayModal(false)}
+                className={styles.cancelButton}
+                disabled={submitting}
+              >
+                Cancelar
+              </button>
+              <button onClick={paySingleInstallment} className={styles.confirmButton} disabled={submitting}>
+                <i className="fas fa-money-bill-wave"></i>
+                {submitting ? "Procesando..." : `Pagar ${formatCurrency(selectedInstallment.monto)}`}
               </button>
             </div>
           </div>

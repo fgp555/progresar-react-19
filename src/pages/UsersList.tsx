@@ -222,6 +222,17 @@ const UsersList: React.FC = () => {
   return (
     <>
       <div className={styles.accousntStats}>
+        {pagination && (
+          <div className="stat-card">
+            <div className="stat-header">
+              <div className="stat-title">Total Usuarios</div>
+              <div className="stat-icon">👥</div>
+            </div>
+            <div className="stat-value">{pagination.totalItems}</div>
+            <div className="stat-description">Usuarios registrados</div>
+          </div>
+        )}
+
         <div className="stat-card">
           <div className="stat-header">
             <div className="stat-title">Saldo Total</div>
@@ -232,40 +243,35 @@ const UsersList: React.FC = () => {
           </div>
           <div className="stat-description">En todas las cuentas</div>
         </div>
-
+      </div>
+      <div className={styles.accousntStats}>
         <div className="stat-card">
           <div className="stat-header">
             <div className="stat-title">Prestamos Activos</div>
             <div className="stat-icon">💰</div>
           </div>
-          <div className="stat-value">{totales?.totalPrestamosActivos}</div>
-          <div className="stat-description">En todas las cuentas</div>
+          <div className="stat-value">{formatBalance(totales?.totalPrestamosActivos || 0)}</div>
+          {/* <div className="stat-description">En todas las cuentas</div> */}
         </div>
 
         <div className="stat-card">
           <div className="stat-header">
-            <div className="stat-title">Intereses Activos</div>
+            <div className="stat-title">Rendimiento Financiero</div>
             <div className="stat-icon">💰</div>
           </div>
-          <div className="stat-value">{totales?.totalInteresesActivos}</div>
-          <div className="stat-description">En todas las cuentas</div>
+          <div className="stat-value">{formatBalance(totales?.totalPagado || 0)}</div>
+          {/* <div className="stat-description">En todas las cuentas</div> */}
         </div>
 
-        {pagination && (
-          <>
-            {/* total usuarios */}
-            <div className="stat-card">
-              <div className="stat-header">
-                <div className="stat-title">Total Usuarios</div>
-                <div className="stat-icon">👥</div>
-              </div>
-              <div className="stat-value">{pagination.totalItems}</div>
-              <div className="stat-description">Usuarios registrados</div>
-            </div>
-          </>
-        )}
+        <div className="stat-card">
+          <div className="stat-header">
+            {/* <div className="stat-title">Intereses Activos</div> */}
+            <div className="stat-icon">💰</div>
+          </div>
+          <div className="stat-value">{formatBalance(totales?.totalInteresesActivos || 0)}</div>
+          {/* <div className="stat-description">En todas las cuentas</div> */}
+        </div>
       </div>
-
       <div className={styles.container}>
         <div className={styles.header}>
           <div className={styles.titleSection}>

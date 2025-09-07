@@ -19,6 +19,7 @@ interface UserUpdateData {
   documentNumber: string;
   documentType: string;
   cupos: number;
+  password?: string; // Made optional since we only send it when changing
 }
 
 const UserEditPage = () => {
@@ -60,6 +61,8 @@ const UserEditPage = () => {
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [changePassword, setChangePassword] = useState<boolean>(false);
 
   // Form data
   const [formData, setFormData] = useState<UserUpdateData>({
@@ -73,6 +76,7 @@ const UserEditPage = () => {
     documentNumber: "",
     documentType: "",
     cupos: 1,
+    password: "",
   });
 
   // Get document type options for select
@@ -104,6 +108,7 @@ const UserEditPage = () => {
           documentNumber: userData.documentNumber || "",
           documentType: userData.documentType?.code || "",
           cupos: userData.cupos || 1,
+          password: "", // Always start empty for security
         });
 
         setError("");
@@ -169,6 +174,26 @@ const UserEditPage = () => {
     }
   };
 
+  // Toggle password change mode
+  const handleTogglePasswordChange = () => {
+    setChangePassword(!changePassword);
+    setFormData((prev) => ({ ...prev, password: "" }));
+    if (validationErrors.password) {
+      setValidationErrors((prev) => ({ ...prev, password: "" }));
+    }
+  };
+
+  // Validate password strength
+  const validatePassword = (password: string): { isValid: boolean; message?: string } => {
+    if (!changePassword) return { isValid: true }; // Skip validation if not changing password
+
+    if (!password) {
+      return { isValid: false, message: "La contraseña es requerida" };
+    }
+
+    return { isValid: true };
+  };
+
   // Validate form
   const validateForm = (): boolean => {
     const errors: { [key: string]: string } = {};
@@ -185,6 +210,14 @@ const UserEditPage = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (formData.email && !emailRegex.test(formData.email)) {
       errors.email = "Por favor ingresa un email válido";
+    }
+
+    // Password validation (only if changing password)
+    if (changePassword) {
+      const passwordValidation = validatePassword(formData.password || "");
+      if (!passwordValidation.isValid) {
+        errors.password = passwordValidation.message || "Contraseña inválida";
+      }
     }
 
     // Document validation
@@ -221,7 +254,13 @@ const UserEditPage = () => {
     setSuccess("");
 
     try {
-      const res: any = await axiosInstance.patch(`/api/progresar/usuarios/${userId}`, formData);
+      // Prepare payload - only include password if changing it
+      const payload: any = { ...formData };
+      if (!changePassword) {
+        delete payload.password;
+      }
+
+      const res: any = await axiosInstance.patch(`/api/progresar/usuarios/${userId}`, payload);
 
       if (res.data.success) {
         setSuccess("Usuario actualizado correctamente");
@@ -229,11 +268,17 @@ const UserEditPage = () => {
         // Show success message
         await Swal.fire({
           title: "¡Éxito!",
-          text: "El usuario ha sido actualizado correctamente",
+          text: changePassword
+            ? "El usuario y su contraseña han sido actualizados correctamente"
+            : "El usuario ha sido actualizado correctamente",
           icon: "success",
           confirmButtonText: "OK",
           confirmButtonColor: "#dc2626",
         });
+
+        // Reset password change mode
+        setChangePassword(false);
+        setFormData((prev) => ({ ...prev, password: "" }));
 
         // Navigate back to user details
         navigate(`/userDetails/${userId}`);
@@ -282,11 +327,14 @@ const UserEditPage = () => {
       documentNumber: user.documentNumber || "",
       documentType: user.documentType?.code || "",
       cupos: user.cupos || 1,
+      password: "",
     });
 
     setError("");
     setSuccess("");
     setValidationErrors({});
+    setChangePassword(false);
+    setShowPassword(false);
   };
 
   // Get document type info for display
@@ -490,6 +538,51 @@ const UserEditPage = () => {
               <option value="moderator">🛡️ Moderador</option>
             </select>
           </div>
+
+          {/* Password Section */}
+          <div className={`${styles.formGroup} ${styles.formFull}`}>
+            <div className={styles.passwordToggle}>
+              <input
+                type="checkbox"
+                id="changePassword"
+                checked={changePassword}
+                onChange={handleTogglePasswordChange}
+              />
+              <label htmlFor="changePassword">
+                <i className="fas fa-key"></i>
+                Cambiar contraseña
+              </label>
+            </div>
+          </div>
+
+          {changePassword && (
+            <div className={`${styles.formGroup} ${styles.formFull}`}>
+              <label htmlFor="password">Nueva Contraseña *</label>
+              <div className={styles.passwordInputContainer}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  name="password"
+                  value={formData.password || ""}
+                  onChange={handleInputChange}
+                  placeholder="Ingresa la nueva contraseña"
+                  className={validationErrors.password ? styles.inputError : ""}
+                  required={changePassword}
+                />
+                <button
+                  type="button"
+                  className={styles.passwordToggleBtn}
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  <i className={showPassword ? "fas fa-eye-slash" : "fas fa-eye"}></i>
+                </button>
+              </div>
+              {validationErrors.password && <small className={styles.errorText}>{validationErrors.password}</small>}
+              <small className={styles.helpText}>
+                La contraseña debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas y números
+              </small>
+            </div>
+          )}
 
           <div className={styles.formGroup}>
             <label htmlFor="cupos">Cupos Disponibles *</label>

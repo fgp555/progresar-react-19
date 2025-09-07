@@ -277,7 +277,7 @@ const TransactionsPage: React.FC = () => {
         <h1 className={styles.title}>Gestión de Transacciones</h1>
         <Link to="/users" className={styles.backBtn}>
           <i className="fas fa-arrow-left"></i>
-          Volver a Cuentas
+          Volver
         </Link>
       </div>
 
