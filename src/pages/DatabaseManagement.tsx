@@ -90,7 +90,7 @@ const DatabaseManagement: React.FC = () => {
     setSuccess("");
 
     try {
-      const response: any = await axiosInstance.patch(`/api/db/restore/${fileName}`);
+      const response: any = await axiosInstance.patch(`/api/db/restoreNodeJS/${fileName}`);
 
       if (response.data.success !== false) {
         setSuccess(`Base de datos restaurada desde "${fileName}" exitosamente`);

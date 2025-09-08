@@ -4,7 +4,7 @@ import { useState } from "react";
 import AccountsPage from "./pages/AccountsPage";
 import AdminLayout from "./layout/AdminLayout/AdminLayout";
 import DashboardPage from "./pages/Dashboard";
-import LoansPage from "./pages/LoansPage";
+import LoansPage from "./pages/LoansPage/LoansPage";
 import LoginPage from "./auth/pages/LoginPage/LoginPage";
 import TransactionsPage from "./pages/TransactionsPage";
 import type { Notification } from "./types";

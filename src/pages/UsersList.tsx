@@ -251,7 +251,7 @@ const UsersList: React.FC = () => {
             <div className="stat-icon">💰</div>
           </div>
           <div className="stat-value">{formatBalance(totales?.totalPrestamosActivos || 0)}</div>
-          {/* <div className="stat-description">En todas las cuentas</div> */}
+          <div className="stat-description">En todas las cuentas</div>
         </div>
 
         <div className="stat-card">
@@ -260,16 +260,16 @@ const UsersList: React.FC = () => {
             <div className="stat-icon">💰</div>
           </div>
           <div className="stat-value">{formatBalance(totales?.totalPagado || 0)}</div>
-          {/* <div className="stat-description">En todas las cuentas</div> */}
+          <div className="stat-description">De total pagado</div>
         </div>
 
         <div className="stat-card">
           <div className="stat-header">
-            {/* <div className="stat-title">Intereses Activos</div> */}
+            <div className="stat-title">Rendimiento Proyectado</div>
             <div className="stat-icon">💰</div>
           </div>
           <div className="stat-value">{formatBalance(totales?.totalInteresesActivos || 0)}</div>
-          {/* <div className="stat-description">En todas las cuentas</div> */}
+          <div className="stat-description">De total prestado</div>
         </div>
       </div>
       <div className={styles.container}>

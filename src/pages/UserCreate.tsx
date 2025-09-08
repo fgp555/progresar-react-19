@@ -160,7 +160,6 @@ const UserCreate: React.FC = () => {
           Volver a Usuarios
         </Link>
       </div>
-
       {error && (
         <div className={styles.errorMessage}>
           <i className="fas fa-exclamation-triangle"></i>

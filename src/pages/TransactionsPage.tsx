@@ -50,6 +50,7 @@ const TransactionsPage: React.FC = () => {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [activeTab, setActiveTab] = useState<"history" | "deposit" | "withdraw">("history");
+  const [user, setUser] = useState<any>(null);
 
   const [depositForm, setDepositForm] = useState<TransactionForm>({
     monto: "",
@@ -84,6 +85,7 @@ const TransactionsPage: React.FC = () => {
         if (response.data.success) {
           setTransactions(response.data.data);
           setPagination(response.data.pagination);
+          setUser(response.data.user);
         }
 
         setError("");
@@ -275,9 +277,9 @@ const TransactionsPage: React.FC = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <h1 className={styles.title}>Gestión de Transacciones</h1>
-        <Link to="/users" className={styles.backBtn}>
+        <Link to={`/userDetails/${user._id}`} className={styles.backBtn}>
           <i className="fas fa-arrow-left"></i>
-          Volver
+          Volver a la cuenta
         </Link>
       </div>
 
