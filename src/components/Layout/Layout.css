@@ -108,6 +108,13 @@
   margin-bottom: var(--spacing-8);
 }
 
+.position-sticky {
+  position: sticky;
+  top: 0;
+  background-color: peru;
+  z-index: 2;
+}
+
 .stat-card {
   background-color: white;
   border-radius: var(--radius-lg);

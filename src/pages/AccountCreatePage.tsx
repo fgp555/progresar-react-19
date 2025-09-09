@@ -7,7 +7,6 @@ interface CreateAccountData {
   tipoCuenta: string;
   saldo: string;
   moneda: string;
-  numeroCuenta: string;
   fechaCreacion: string;
   estado: string;
 }
@@ -32,7 +31,6 @@ const AccountCreate: React.FC = () => {
     tipoCuenta: "ahorro",
     saldo: "0.00",
     moneda: "COP",
-    numeroCuenta: "",
     fechaCreacion: new Date().toISOString().split("T")[0],
     estado: "activa",
   });
@@ -45,14 +43,12 @@ const AccountCreate: React.FC = () => {
 
   const accountTypes = [
     { value: "ahorro", label: "Cuenta de Ahorro", icon: "💰" },
-    { value: "corriente", label: "Cuenta Corriente", icon: "💳" },
-    { value: "nomina", label: "Cuenta Nómina", icon: "💼" },
+    { value: "prestamo", label: "Cuenta de prestamo", icon: "💼" },
   ];
 
   const currencies = [
     { value: "COP", label: "Peso Colombiano (COP)", symbol: "$" },
     { value: "USD", label: "Dólar Americano (USD)", symbol: "$" },
-    { value: "EUR", label: "Euro (EUR)", symbol: "€" },
   ];
 
   const accountStatuses = [
@@ -90,16 +86,6 @@ const AccountCreate: React.FC = () => {
     fetchUser();
   }, [userId]);
 
-  // Generate account number
-  const generateAccountNumber = () => {
-    const timestamp = Date.now().toString().slice(-6);
-    const random = Math.floor(Math.random() * 9999)
-      .toString()
-      .padStart(4, "0");
-    const accountNumber = `${timestamp}-${random}`;
-    setFormData((prev) => ({ ...prev, numeroCuenta: accountNumber }));
-  };
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
 
@@ -127,11 +113,6 @@ const AccountCreate: React.FC = () => {
   const validateForm = (): boolean => {
     const errors: ValidationErrors = {};
 
-    // Required fields validation
-    if (!formData.numeroCuenta.trim()) {
-      errors.numeroCuenta = "El número de cuenta es requerido";
-    }
-
     if (!formData.saldo.trim()) {
       errors.saldo = "El saldo inicial es requerido";
     } else {
@@ -143,11 +124,6 @@ const AccountCreate: React.FC = () => {
 
     if (!formData.fechaCreacion.trim()) {
       errors.fechaCreacion = "La fecha de creación es requerida";
-    }
-
-    // Account number format validation (basic)
-    if (formData.numeroCuenta && formData.numeroCuenta.length < 4) {
-      errors.numeroCuenta = "El número de cuenta debe tener al menos 4 caracteres";
     }
 
     setValidationErrors(errors);
@@ -193,7 +169,6 @@ const AccountCreate: React.FC = () => {
       tipoCuenta: "ahorro",
       saldo: "0.00",
       moneda: "COP",
-      numeroCuenta: "",
       fechaCreacion: new Date().toISOString().split("T")[0],
       estado: "activa",
     });
@@ -284,34 +259,6 @@ const AccountCreate: React.FC = () => {
                 </option>
               ))}
             </select>
-          </div>
-
-          <div className={styles.formGroup}>
-            <label htmlFor="numeroCuenta" className={styles.label}>
-              Número de Cuenta *
-            </label>
-            <div className={styles.inputGroup}>
-              <input
-                type="text"
-                id="numeroCuenta"
-                name="numeroCuenta"
-                value={formData.numeroCuenta}
-                onChange={handleInputChange}
-                placeholder="Ej: 1234-5678-9012"
-                className={`${styles.input} ${validationErrors.numeroCuenta ? styles.inputError : ""}`}
-                required
-              />
-              <button
-                type="button"
-                onClick={generateAccountNumber}
-                className={styles.generateBtn}
-                title="Generar número automático"
-              >
-                <i className="fas fa-dice"></i>
-              </button>
-            </div>
-            {validationErrors.numeroCuenta && <span className={styles.errorText}>{validationErrors.numeroCuenta}</span>}
-            <small className={styles.helpText}>Puede generar un número automático o ingresar uno personalizado</small>
           </div>
 
           {/* Financial Information Section */}
@@ -437,7 +384,6 @@ const AccountCreate: React.FC = () => {
               {accountStatuses.find((s) => s.value === formData.estado)?.label}
             </span>
           </div>
-          <div className={styles.cardNumber}>{formData.numeroCuenta || "XXXX-XXXX-XXXX"}</div>
           <div className={styles.cardBalance}>
             {formatCurrency(formData.saldo)} {formData.moneda}
           </div>

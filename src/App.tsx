@@ -6,7 +6,7 @@ import AdminLayout from "./layout/AdminLayout/AdminLayout";
 import DashboardPage from "./pages/Dashboard";
 import LoansPage from "./pages/LoansPage/LoansPage";
 import LoginPage from "./auth/pages/LoginPage/LoginPage";
-import TransactionsPage from "./pages/TransactionsPage";
+// import TransactionsPage from "./pages/TransactionsPage/TransactionsPage";
 import type { Notification } from "./types";
 import PasswordForgot from "./auth/pages/PasswordForgot/PasswordForgot";
 import PasswordRestore from "./auth/pages/PasswordRestore/PasswordRestore";
@@ -16,6 +16,8 @@ import UserCreate from "./pages/UserCreate";
 import UsersList from "./pages/UsersList";
 import AccountCreatePage from "./pages/AccountCreatePage";
 import AccountUpdatePage from "./pages/AccountUpdatePage";
+import TransactionsPage from "./pages/TransactionsPage/components/TransactionsPage/TransactionsPage";
+import { TransferPage } from "./pages/TransferPage/TransferPage";
 
 function App() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -41,6 +43,7 @@ function App() {
           <Route path="/accounts/create/:userId" element={<AccountCreatePage />} />
           <Route path="/accounts/edit/:userId" element={<AccountUpdatePage />} />
           <Route path="/transactions/:accountId" element={<TransactionsPage />} />
+          <Route path="/transactions/transfer/:accountId" element={<TransferPage />} />
           <Route path="/loans/:accountId" element={<LoansPage />} />
         </Route>
         <Route path="*" element={<div>Página no encontrada</div>} />

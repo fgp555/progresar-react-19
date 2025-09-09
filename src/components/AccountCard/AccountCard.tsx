@@ -36,7 +36,7 @@ const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
         return "💰";
       case "corriente":
         return "🏦";
-      case "plazo fijo":
+      case "prestamo":
         return "📈";
       default:
         return "💳";
@@ -106,9 +106,13 @@ const AccountCard: React.FC<AccountCardProps> = ({ account }) => {
               🏦 Préstamos
             </Button>
           </Link>
-          {/* <Button variant="secondary" size="sm">
-            <i className="fa-solid fa-pen"></i>
-          </Button> */}
+          {/* editar button */}
+          <Link to={`/accounts/edit/${account.usuarioId}`}>
+            <Button variant="secondary" size="sm">
+              📝 Editar
+            </Button>
+          </Link>
+
         </div>
       </CardBody>
     </Card>

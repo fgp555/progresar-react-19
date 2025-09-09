@@ -41,7 +41,7 @@ export const AccountList: React.FC<AccountListProps> = ({
         return "💰";
       case "corriente":
         return "🏦";
-      case "plazo fijo":
+      case "prestamo":
         return "📈";
       default:
         return "💳";

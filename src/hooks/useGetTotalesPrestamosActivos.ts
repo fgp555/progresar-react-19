@@ -6,7 +6,7 @@ interface TotalesPrestamosResponse {
   success: boolean;
   totalPrestamosActivos: number;
   totalInteresesActivos: number;
-  totalPagado: number;
+  totalPagadoIntereses: number;
 }
 
 export const useGetTotalesPrestamosActivos = () => {

@@ -1,0 +1,54 @@
+/* components/Pagination/Pagination.module.css */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 20px 0;
+    border-top: 1px solid #e9ecef;
+    margin-top: 20px;
+  }
+  
+  .pageBtn {
+    padding: 10px 20px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  
+  .pageBtn:hover:not(:disabled) {
+    background: #0056b3;
+    transform: translateY(-2px);
+  }
+  
+  .pageBtn:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+  }
+  
+  .pageInfo {
+    font-weight: 500;
+    color: #495057;
+    padding: 0 15px;
+  }
+  
+  @media (max-width: 768px) {
+    .pagination {
+      gap: 10px;
+    }
+    
+    .pageBtn {
+      padding: 8px 15px;
+      font-size: 0.9rem;
+    }
+    
+    .pageInfo {
+      font-size: 0.9rem;
+    }
+  }
+  

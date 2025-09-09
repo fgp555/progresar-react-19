@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import axiosInstance from "@/config/axiosInstance";
 import styles from "./AccountUpdatePage.module.css";
 
@@ -36,12 +36,14 @@ interface ValidationErrors {
 
 const AccountUpdatePage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
-  //   const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [selectedAccount, setSelectedAccount] = useState<Account | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [saving, setSaving] = useState<boolean>(false);
+  const [deleting, setDeleting] = useState<boolean>(false);
+  const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
@@ -57,14 +59,12 @@ const AccountUpdatePage: React.FC = () => {
 
   const accountTypes = [
     { value: "ahorro", label: "Cuenta de Ahorro", icon: "💰" },
-    { value: "corriente", label: "Cuenta Corriente", icon: "💳" },
-    { value: "nomina", label: "Cuenta Nómina", icon: "💼" },
+    { value: "prestamo", label: "Cuenta de prestamo", icon: "💼" },
   ];
 
   const currencies = [
     { value: "COP", label: "Peso Colombiano (COP)", symbol: "$" },
     { value: "USD", label: "Dólar Americano (USD)", symbol: "$" },
-    { value: "EUR", label: "Euro (EUR)", symbol: "€" },
   ];
 
   const accountStatuses = [
@@ -217,6 +217,47 @@ const AccountUpdatePage: React.FC = () => {
     }
   };
 
+  const handleDelete = async () => {
+    if (!selectedAccount) return;
+
+    setDeleting(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const response: any = await axiosInstance.delete(`/api/progresar/cuentas/delete/${selectedAccount.id}`);
+
+      if (response.data.success || response.status === 200) {
+        setSuccess("Cuenta eliminada correctamente");
+        
+        // Remove the account from the accounts list
+        const updatedAccounts = accounts.filter((acc) => acc.id !== selectedAccount.id);
+        setAccounts(updatedAccounts);
+
+        // Select the first remaining account or clear selection
+        if (updatedAccounts.length > 0) {
+          selectAccount(updatedAccounts[0]);
+        } else {
+          setSelectedAccount(null);
+          // If no accounts left, redirect to user details
+          setTimeout(() => {
+            navigate(`/userDetails/${userId}`);
+          }, 2000);
+        }
+
+        setShowDeleteModal(false);
+      } else {
+        setError("Error al eliminar la cuenta");
+      }
+    } catch (err: any) {
+      const errorMessage = err?.response?.data?.message || "Error al eliminar la cuenta";
+      setError(errorMessage);
+      console.error("Error deleting account:", err);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const handleReset = () => {
     if (selectedAccount) {
       selectAccount(selectedAccount);
@@ -359,6 +400,16 @@ const AccountUpdatePage: React.FC = () => {
               <form onSubmit={handleSubmit} className={styles.form}>
                 <div className={styles.formHeader}>
                   <h3>Editar Cuenta: {selectedAccount.numeroCuenta}</h3>
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteModal(true)}
+                    className={`${styles.btn} ${styles.btnDanger}`}
+                    disabled={saving || deleting}
+                    title="Eliminar cuenta"
+                  >
+                    <i className="fas fa-trash"></i>
+                    Eliminar Cuenta
+                  </button>
                 </div>
 
                 <div className={styles.formGrid}>
@@ -491,13 +542,13 @@ const AccountUpdatePage: React.FC = () => {
                     type="button"
                     onClick={handleReset}
                     className={`${styles.btn} ${styles.btnSecondary}`}
-                    disabled={saving}
+                    disabled={saving || deleting}
                   >
                     <i className="fas fa-undo"></i>
                     Restablecer
                   </button>
 
-                  <button type="submit" className={`${styles.btn} ${styles.btnPrimary}`} disabled={saving}>
+                  <button type="submit" className={`${styles.btn} ${styles.btnPrimary}`} disabled={saving || deleting}>
                     <i className="fas fa-save"></i>
                     {saving ? "Guardando..." : "Actualizar Cuenta"}
                   </button>
@@ -512,6 +563,70 @@ const AccountUpdatePage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modal}>
+            <div className={styles.modalHeader}>
+              <h3>Confirmar Eliminación</h3>
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className={styles.modalClose}
+                disabled={deleting}
+              >
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+
+            <div className={styles.modalContent}>
+              <div className={styles.warningIcon}>
+                <i className="fas fa-exclamation-triangle"></i>
+              </div>
+              <p>
+                ¿Estás seguro de que deseas eliminar la cuenta{" "}
+                <strong>{selectedAccount?.numeroCuenta}</strong>?
+              </p>
+              <p className={styles.warningText}>
+                Esta acción no se puede deshacer. Se eliminarán permanentemente todos los datos
+                asociados a esta cuenta.
+              </p>
+
+              {selectedAccount && (
+                <div className={styles.accountSummary}>
+                  <h4>Resumen de la cuenta:</h4>
+                  <ul>
+                    <li><strong>Número:</strong> {selectedAccount.numeroCuenta}</li>
+                    <li><strong>Tipo:</strong> {accountTypes.find(t => t.value === selectedAccount.tipoCuenta)?.label}</li>
+                    <li><strong>Saldo:</strong> {formatCurrency(selectedAccount.saldo)} {selectedAccount.moneda}</li>
+                    <li><strong>Estado:</strong> {selectedAccount.estado}</li>
+                  </ul>
+                </div>
+              )}
+            </div>
+
+            <div className={styles.modalActions}>
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className={`${styles.btn} ${styles.btnSecondary}`}
+                disabled={deleting}
+              >
+                <i className="fas fa-times"></i>
+                Cancelar
+              </button>
+
+              <button
+                onClick={handleDelete}
+                className={`${styles.btn} ${styles.btnDanger}`}
+                disabled={deleting}
+              >
+                <i className="fas fa-trash"></i>
+                {deleting ? "Eliminando..." : "Confirmar Eliminación"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

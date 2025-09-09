@@ -221,9 +221,9 @@ const UsersList: React.FC = () => {
 
   return (
     <>
-      <div className={styles.accousntStats}>
+      <div className={styles.accousntStats }>
         {pagination && (
-          <div className="stat-card">
+          <div className="stat-card position-sticky">
             <div className="stat-header">
               <div className="stat-title">Total Usuarios</div>
               <div className="stat-icon">👥</div>
@@ -238,13 +238,42 @@ const UsersList: React.FC = () => {
             <div className="stat-title">Saldo Total</div>
             <div className="stat-icon">💰</div>
           </div>
+          {/* <pre>{JSON.stringify({ accounts, totales }, null, 2)}</pre> */}
           <div className="stat-value">
             {formatBalance(accounts.reduce((total, account) => total + Number(account.saldo), 0))}
           </div>
           <div className="stat-description">En todas las cuentas</div>
         </div>
+        {/* <div className="stat-card">
+          <div className="stat-header">
+            <div className="stat-title">Saldo Total Ahorros</div>
+            <div className="stat-icon">🏦</div>
+          </div>
+          <div className="stat-value">
+            {formatBalance(
+              accounts
+                .filter((account) => account.tipoCuenta === "ahorro") // 👈 solo ahorro
+                .reduce((total, account) => total + Number(account.saldo), 0)
+            )}
+          </div>
+          <div className="stat-description">En cuentas de ahorro</div>
+        </div> */}
       </div>
       <div className={styles.accousntStats}>
+        {/* <div className="stat-card">
+          <div className="stat-header">
+            <div className="stat-title">Saldo Total Prestamos</div>
+            <div className="stat-icon">🏦</div>
+          </div>
+          <div className="stat-value">
+            {formatBalance(
+              accounts
+                .filter((account) => account.tipoCuenta === "prestamo") // 👈 solo ahorro
+                .reduce((total, account) => total + Number(account.saldo), 0)
+            )}
+          </div>
+          <div className="stat-description">En cuentas de prestamo</div>
+        </div> */}
         <div className="stat-card">
           <div className="stat-header">
             <div className="stat-title">Prestamos Activos</div>
@@ -259,7 +288,7 @@ const UsersList: React.FC = () => {
             <div className="stat-title">Rendimiento Financiero</div>
             <div className="stat-icon">💰</div>
           </div>
-          <div className="stat-value">{formatBalance(totales?.totalPagado || 0)}</div>
+          <div className="stat-value">{formatBalance(totales?.totalPagadoIntereses || 0)}</div>
           <div className="stat-description">De total pagado</div>
         </div>
 
@@ -399,6 +428,7 @@ const UsersList: React.FC = () => {
                 <div className={styles.accountsSection}>
                   <br />
                   <h4 className={styles.accountsTitle}>Cuentas:</h4>
+                  {/* <pre>{JSON.stringify(user.cuentas, null, 2)}</pre> */}
 
                   {user.cuentas.map((cuenta) => (
                     <div key={cuenta.id} className={styles.accountCard}>

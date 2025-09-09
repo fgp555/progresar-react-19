@@ -89,7 +89,7 @@ export interface UpdateUserDto {
 export const AccountType = {
   AHORRO: "ahorro",
   CORRIENTE: "corriente",
-  PLAZO_FIJO: "plazo fijo",
+  PRESTAMO: "prestamo",
 } as const;
 
 export type AccountType = (typeof AccountType)[keyof typeof AccountType];

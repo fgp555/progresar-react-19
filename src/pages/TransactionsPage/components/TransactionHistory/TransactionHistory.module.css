@@ -1,0 +1,35 @@
+/* components/TransactionHistory/TransactionHistory.module.css */
+.historyTab {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .transactionsList {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .noTransactions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: #6c757d;
+    text-align: center;
+  }
+  
+  .noTransactions i {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+  
+  .noTransactions p {
+    font-size: 1.2rem;
+    margin: 0;
+  }
+  
+  

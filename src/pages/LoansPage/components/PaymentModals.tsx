@@ -79,7 +79,7 @@ export const PaymentModals: React.FC<PaymentModalsProps> = ({
                     className={`${styles.select} ${validationErrors.numeroCuotas ? styles.inputError : ""}`}
                   >
                     {Array.from(
-                      { length: Math.min(6, selectedLoan.numeroCuotas - selectedLoan.cuotasPagadas) },
+                      { length: Math.min(12, selectedLoan.numeroCuotas - selectedLoan.cuotasPagadas) },
                       (_, i) => i + 1
                     ).map((num) => (
                       <option key={num} value={num}>

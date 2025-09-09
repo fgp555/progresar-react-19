@@ -320,6 +320,9 @@
   margin-bottom: 2rem;
   padding-bottom: 1rem;
   border-bottom: 2px solid #e1e8ed;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .formHeader h3 {
@@ -660,4 +663,101 @@ input[type="date"] {
 .select:focus {
   outline: 2px solid #3498db;
   outline-offset: 2px;
+}
+
+.btnDanger {
+  background-color: #dc3545;
+  color: white;
+  border: 1px solid #dc3545;
+}
+
+.btnDanger:hover:not(:disabled) {
+  background-color: #c82333;
+  border-color: #bd2130;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  border-radius: 8px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.modalClose {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.modalContent {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.warningIcon {
+  font-size: 3rem;
+  color: #ffc107;
+  margin-bottom: 1rem;
+}
+
+.warningText {
+  color: #dc3545;
+  font-weight: 500;
+  margin: 1rem 0;
+}
+
+.accountSummary {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 1rem;
+  margin: 1rem 0;
+  text-align: left;
+}
+
+.accountSummary h4 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.accountSummary ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.accountSummary li {
+  margin-bottom: 0.25rem;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e9ecef;
 }

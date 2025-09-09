@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import type { Loan, LoanInstallment } from "./types/loans";
 import { useLoans } from "./hooks/useLoans";
-import { formatCurrency, formatNumberInput } from "./utils/loanUtils";
+import { formatNumberInput } from "./utils/loanUtils";
 import { LoansList } from "./components/LoansList";
 import { LoanCalculator } from "./components/LoanCalculator";
 import { LoanRequestForm } from "./components/LoanRequestForm";
@@ -155,18 +155,16 @@ const LoansPage: React.FC = () => {
       )}
 
       {/* Account Info */}
-      {account && (
+      {/* {account && (
         <div className={styles.accountInfo}>
           <div className={styles.accountDetails}>
             <h3>Cuenta: {account.numeroCuenta}</h3>
-            {/* name user */}
-            {/* <p>Nombre: {loans[0].account.}</p> */}
             <p>Saldo actual: {formatCurrency(account.saldo)}</p>
             <p>Monto máximo préstamo: {formatCurrency((parseFloat(account.saldo) * 2).toString())}</p>
             <span className={`${styles.accountStatus} ${styles[account.estado]}`}>{account.estado.toUpperCase()}</span>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Navigation Tabs */}
       <div className={styles.tabs}>

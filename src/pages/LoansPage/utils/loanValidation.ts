@@ -1,7 +1,7 @@
 // utils/loanValidation.ts
 
 import type { CreateLoanForm, PayInstallmentForm, PaySingleInstallmentForm, Account } from "../types/loans";
-import { parseFormattedNumber, formatCurrency } from "./loanUtils";
+import { parseFormattedNumber } from "./loanUtils";
 
 export interface ValidationErrors {
   [key: string]: string;
@@ -17,11 +17,7 @@ export const validateCreateForm = (form: CreateLoanForm, account: Account | null
     if (isNaN(amount) || amount <= 0) {
       errors.monto = "El monto debe ser un número positivo";
     } else if (account) {
-      // Validar que el monto no exceda el doble del saldo
-      const maxAmount = parseFloat(account.saldo) * 2;
-      if (amount > maxAmount) {
-        errors.monto = `El monto máximo permitido es ${formatCurrency(maxAmount.toString())} (2x su saldo actual)`;
-      }
+      console.log("account.saldo", account.saldo);
     }
   }
 

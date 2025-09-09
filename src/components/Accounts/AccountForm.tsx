@@ -12,8 +12,7 @@ interface AccountFormProps {
 const accountTypeOptions = [
   { value: "", label: "Seleccione tipo de cuenta" },
   { value: "ahorro", label: "💰 Cuenta de Ahorros" },
-  { value: "corriente", label: "🏦 Cuenta Corriente" },
-  { value: "plazo fijo", label: "📈 Plazo Fijo" },
+  { value: "prestamo", label: "📈 prestamo" },
 ];
 
 const currencyOptions = [
