@@ -1,4 +1,4 @@
-// utils/loanUtils.ts
+// src\pages\LoansPage\utils\loanUtils.ts
 
 import type { Loan } from "../types/loans";
 
@@ -34,6 +34,16 @@ export const parseFormattedNumber = (formattedValue: string): number => {
 
 export const formatDate = (dateString: string): string => {
   return new Date(dateString).toLocaleDateString("es-CO", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
+
+export const formatDateLoans = (dateString: string): string => {
+  if (!dateString) return "";
+  const [year, month, day] = dateString.split("-").map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString("es-CO", {
     year: "numeric",
     month: "short",
     day: "numeric",

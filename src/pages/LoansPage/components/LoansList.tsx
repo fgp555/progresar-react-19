@@ -1,8 +1,8 @@
-// components/LoansList.tsx
+// src\pages\LoansPage\components\LoansList.tsx
 
 import React from "react";
 import type { Loan, LoanInstallment } from "../types/loans";
-import { formatCurrency, formatDate, getStatusColor, getProgressPercentage } from "../utils/loanUtils";
+import { formatCurrency, getStatusColor, getProgressPercentage, formatDateLoans } from "../utils/loanUtils";
 import styles from "../LoansPage.module.css";
 
 interface LoansListProps {
@@ -27,6 +27,7 @@ export const LoansList: React.FC<LoansListProps> = ({ loans, onPayMultiple, onPa
 
   return (
     <div className={styles.loansList}>
+      {/* <pre>{JSON.stringify(loans, null, 2)}</pre> */}
       {loans.map((loan) => (
         <div key={loan.id} className={styles.loanCard}>
           <div className={styles.loanHeader}>
@@ -67,7 +68,8 @@ export const LoansList: React.FC<LoansListProps> = ({ loans, onPayMultiple, onPa
             </div>
             <div className={styles.detailRow}>
               <span>Vencimiento:</span>
-              <span>{formatDate(loan.fechaVencimiento)}</span>
+              {/* <pre>{JSON.stringify(loan.fechaVencimiento, null, 2)}</pre> */}
+              <span>{formatDateLoans(loan.fechaVencimiento)}</span>
             </div>
           </div>
 
@@ -91,11 +93,13 @@ export const LoansList: React.FC<LoansListProps> = ({ loans, onPayMultiple, onPa
                     <span className={styles.installmentAmount}>{formatCurrency(installment.monto)}</span>
                   </div>
                   <div className={styles.installmentMeta}>
-                    <span className={styles.installmentDate}>Vence: {formatDate(installment.fechaVencimiento)}</span>
+                    <span className={styles.installmentDate}>
+                      Vence: {formatDateLoans(installment.fechaVencimiento)}
+                    </span>
                     <span className={`${styles.installmentStatus} ${styles[getStatusColor(installment.estado)]}`}>
                       {installment.estado}
                       {installment.fechaPago && (
-                        <span className={styles.payDate}> (Pagada: {formatDate(installment.fechaPago)})</span>
+                        <span className={styles.payDate}> (Pagada: {formatDateLoans(installment.fechaPago)})</span>
                       )}
                     </span>
                   </div>
